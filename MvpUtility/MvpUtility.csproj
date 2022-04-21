@@ -42,7 +42,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
-    <Compile Include="EventHandling\EventHandler.cs" />
     <Compile Include="EventHandling\KillCounterUtility.cs" />
     <Compile Include="EventHandling\MvpStats.cs" />
     <Compile Include="Main.cs" />
@@ -58,4 +57,9 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>if EXIST "C:\Users\tuxwo\AppData\Roaming\EXILED\Plugins\" (
+   copy /Y  "$(TargetPath)" "C:\Users\tuxwo\AppData\Roaming\EXILED\Plugins\$(TargetFileName)"
+  )</PostBuildEvent>
+  </PropertyGroup>
 </Project>

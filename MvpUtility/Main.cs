@@ -51,8 +51,10 @@ namespace MvpUtility
             mvpStatsMonitor = new MvpStats(this);
 
             PlayerEvents.Escaping += mvpStatsMonitor.OnEscape;
-            ServerEvents.RoundStarted += mvpStatsMonitor.OnStart;
             PlayerEvents.Dying += mvpStatsMonitor.OnDying;
+            ServerEvents.RoundStarted += mvpStatsMonitor.OnStart;
+
+            ServerEvents.RoundEnded += mvpStatsMonitor.OnRoundEnd;
 
             base.OnEnabled();
         }
@@ -68,6 +70,9 @@ namespace MvpUtility
 
             PlayerEvents.Escaping -= mvpStatsMonitor.OnEscape;
             ServerEvents.RoundStarted -= mvpStatsMonitor.OnStart;
+            PlayerEvents.Dying -= mvpStatsMonitor.OnDying;
+
+            ServerEvents.RoundEnded -= mvpStatsMonitor.OnRoundEnd;
 
             Instance = null;
             base.OnDisabled();

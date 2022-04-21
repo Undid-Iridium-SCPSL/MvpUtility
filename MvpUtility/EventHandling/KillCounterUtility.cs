@@ -1,4 +1,5 @@
 ﻿using Exiled.API.Features;
+using Respawning;
 using System;
 using System.Collections.Generic;
 
@@ -6,21 +7,26 @@ namespace MvpUtility.EventHandling
 {
     internal class KillCounterUtility
     {
-        private Player killer;
+
 
 
         //public int killsAgainstHumans { get => killsAgainstHumans; set => killsAgainstHumans = value; }
 
-        public int totalKills { get => totalKills; set => totalKills = value; }
+        public int totalKills { get; set; }
 
-        private Dictionary<RoleType, killsPerType> killsAsRole;
+        private Dictionary<RoleType, KillsPerType> killsAsRole;
 
+        public static List<RoleType> allPossibleNtf = new List<RoleType>() { RoleType.NtfCaptain, RoleType.NtfPrivate, RoleType.NtfSergeant, RoleType.NtfSpecialist };
 
+        public static List<RoleType> allPossibleChaos = new List<RoleType>() { RoleType.ChaosConscript, RoleType.ChaosMarauder, RoleType.ChaosRepressor, RoleType.ChaosRifleman };
+
+        public static List<RoleType> allPossibleScps = new List<RoleType>() {  RoleType.Scp173, RoleType.Scp106, RoleType.Scp049, RoleType.Scp079
+            , RoleType.Scp096, RoleType.Scp0492, RoleType.Scp93953, RoleType.Scp93989 };
 
         public KillCounterUtility(Player killer)
         {
-            this.killer = killer;
-            killsAsRole = new Dictionary<RoleType, killsPerType>();
+
+            killsAsRole = new Dictionary<RoleType, KillsPerType>();
         }
 
 
@@ -42,17 +48,66 @@ namespace MvpUtility.EventHandling
                 return;
             }
 
-            if (!killsAsRole.TryGetValue(killer.Role, out killsPerType killPerType))
+            if (!killsAsRole.TryGetValue(killer.Role, out KillsPerType killPerType))
             {
-                killPerType = new killsPerType();
+                killPerType = new KillsPerType();
+                killsAsRole.Add(killer.Role, killPerType);
             }
             killPerType.parseTargetType(target);
 
         }
 
+        public Tuple<RoleType, int> getKillsPerTeam(Team team)
+        {
+            return getBestKillsPerTeam(team);
+        }
+
+
+
+        public Tuple<RoleType, int> getBestKillsPerTeam(Team team)
+        {
+            List<RoleType> teamToParse;
+            switch (team)
+            {
+                case Team.SCP:
+                    teamToParse = allPossibleScps;
+                    break;
+                case Team.MTF:
+                    teamToParse = allPossibleNtf;
+                    break;
+                case Team.CHI:
+                    teamToParse = allPossibleChaos;
+                    break;
+                default:
+                    return Tuple.Create(RoleType.None, int.MinValue);
+            }
+
+            RoleType currentBestRole = RoleType.None;
+            int bestKillsPerTeam = int.MinValue;
+            for (int pos = 0; pos < teamToParse.Count; pos++)
+            {
+                if (!killsAsRole.TryGetValue(teamToParse[pos], out KillsPerType killPerType))
+                {
+                    continue;
+                }
+                if (bestKillsPerTeam < killPerType.totalKillsPerRole(teamToParse[pos]))
+                {
+                    currentBestRole = teamToParse[pos];
+                    bestKillsPerTeam = killPerType.totalKillsPerRole(teamToParse[pos]);
+                }
+            }
+            return Tuple.Create(currentBestRole, bestKillsPerTeam);
+
+        }
+
+        internal Tuple<RoleType, int> getBestKiller()
+        {
+            return Tuple.Create(RoleType.None, totalKills);
+        }
+
         public int getKillsPerRole(RoleType playerRole)
         {
-            if (!killsAsRole.TryGetValue(killer.Role, out killsPerType killPerType))
+            if (!killsAsRole.TryGetValue(playerRole, out KillsPerType killPerType))
             {
                 return 0;
             }
@@ -61,16 +116,16 @@ namespace MvpUtility.EventHandling
 
         public Tuple<RoleType, int> getBestKillRole(RoleType playerRole)
         {
-            if (!killsAsRole.TryGetValue(killer.Role, out killsPerType killPerType))
+            if (!killsAsRole.TryGetValue(playerRole, out KillsPerType killPerType))
             {
                 return null;
             }
             return killPerType.calculateHighestKillsInAllRoles();
         }
 
-        public Tuple<RoleType, int> getWorstKillRole(RoleType playerRole)
+        public Tuple<RoleType, int> calculateWorstRole(RoleType playerRole)
         {
-            if (!killsAsRole.TryGetValue(killer.Role, out killsPerType killPerType))
+            if (!killsAsRole.TryGetValue(playerRole, out KillsPerType killPerType))
             {
                 return null;
             }
@@ -78,15 +133,56 @@ namespace MvpUtility.EventHandling
             return killPerType.calculateLowestKillsInAllRoles();
         }
 
+
+        /// <summary>
+        /// Iterates over every role a person was, and determines the best played one in terms of kills
+        /// </summary>
+        /// <returns> <see cref="Tuple"/> </returns>
+        public Tuple<RoleType, int> getBestRole()
+        {
+            Tuple<RoleType, int> currentBestRole = Tuple.Create(RoleType.None, int.MaxValue);
+            foreach (KeyValuePair<RoleType, KillsPerType> pairedData in killsAsRole)
+            {
+                Tuple<RoleType, int> currentBestRoleCalc = pairedData.Value.calculateHighestKillsInAllRoles();
+                if (currentBestRoleCalc.Item2 < currentBestRole.Item2)
+                {
+                    currentBestRole = currentBestRoleCalc;
+                }
+            }
+            return currentBestRole;
+        }
+
+
+        /// <summary>
+        /// Iterates over every role a person was, and determines the worst played one in terms of kills
+        /// </summary>
+        /// <returns> <see cref="Tuple"/> </returns>
+        public Tuple<RoleType, int> getWorstRole()
+        {
+            Tuple<RoleType, int> currentWorstRole = Tuple.Create(RoleType.None, int.MaxValue);
+
+            foreach (KeyValuePair<RoleType, KillsPerType> pairedData in killsAsRole)
+            {
+                Tuple<RoleType, int> currentWorstRoleCalc = pairedData.Value.calculateLowestKillsInAllRoles();
+                if (currentWorstRoleCalc.Item2 < currentWorstRole.Item2)
+                {
+                    currentWorstRole = currentWorstRoleCalc;
+                }
+            }
+            return currentWorstRole;
+        }
+
     }
 
-    internal class killsPerType
+    internal class KillsPerType
     {
         private Dictionary<RoleType, int> targetTypedKilled;
 
-        public Tuple<RoleType, int> highestKillRoleCount { get => highestKillRoleCount; set => highestKillRoleCount = value; }
-        public Tuple<RoleType, int> lowestKillRoleCount { get => lowestKillRoleCount; set => lowestKillRoleCount = value; }
-        public killsPerType()
+        public Tuple<RoleType, int> highestKillRoleCount { get; set; }
+        public Tuple<RoleType, int> lowestKillRoleCount { get; set; }
+
+        private bool alreadyCalculated { get; set; } = false;
+        public KillsPerType()
         {
             targetTypedKilled = new Dictionary<RoleType, int>();
         }
@@ -106,7 +202,7 @@ namespace MvpUtility.EventHandling
 
         public int totalKillsPerRole(RoleType role)
         {
-            return targetTypedKilled[role];
+            return targetTypedKilled.TryGetValue(role, out int value) ? value : int.MinValue;
         }
 
         public Tuple<RoleType, int> calculateHighestKillsInAllRoles()
@@ -126,11 +222,16 @@ namespace MvpUtility.EventHandling
             killsPerRoleCalculator();
         }
 
-        public void killsPerRoleCalculator()
+        public void killsPerRoleCalculator(bool recalculate = false)
         {
             // Tuple<RoleType, int> highestRoleKill = new Tuple<RoleType, int>(RoleType.None, 0);
             // No benefit to not calculate both when iterating. 
 
+            //Assumes that calculation was just done, why repeat loop. Otherwise, use recalculate variable.
+            if (alreadyCalculated && !recalculate)
+            {
+                return;
+            }
             RoleType highestKillRole = RoleType.None;
             int highestKillCount = int.MinValue;
 
@@ -153,7 +254,10 @@ namespace MvpUtility.EventHandling
             }
 
             highestKillRoleCount = Tuple.Create(highestKillRole, highestKillCount);
-            highestKillRoleCount = Tuple.Create(lowestKillRole, lowestKillCount);
+            lowestKillRoleCount = Tuple.Create(lowestKillRole, lowestKillCount);
+
+
+            alreadyCalculated = true;
         }
 
     }
