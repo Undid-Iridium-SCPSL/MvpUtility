@@ -1,6 +1,6 @@
 # MvpUtility
 
-
+I need to go shopping. However, this is a plugin to show MVP stats at the end of the round. It's barebones but it was what I could accomplish today thus far. Thanks, any bugs should be expected but hopefully none. 
 
 ![MvpUtility ISSUES](https://img.shields.io/github/issues/Undid-Iridium/MvpUtility)
 ![MvpUtility FORKS](https://img.shields.io/github/forks/Undid-Iridium/MvpUtility)
