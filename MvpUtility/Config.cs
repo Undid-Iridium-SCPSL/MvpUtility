@@ -47,6 +47,11 @@ namespace MvpUtility
 
         [Description("Control over what types to show")]
         public roundEndConfigurations roundEndBehaviors { get; set; } = new roundEndConfigurations();
+
+        [Description("How often to check for Scp106")]
         public float CheckInterval { get; set; } = 10f;
+
+        [Description("How long to display hint.")]
+        public float hintDisplayLimit { get; set; } = 10f;
     }
 }

@@ -18,7 +18,7 @@ namespace MvpUtility.EventHandling
         /// <param name="plugin">An instance of the <see cref="Plugin"/> class.</param>
         public MvpStats(Main plugin) => this.plugin = plugin;
 
-        internal Dictionary<String, KillCounterUtility> mostKillsPlayer;
+        internal Dictionary<String, KillCounterUtility> listOfPlayersKillStats;
 
         public Tuple<String, float> firstPlayerEscape;
 
@@ -31,7 +31,7 @@ namespace MvpUtility.EventHandling
         internal void roundStarted(float time)
         {
             roundStartTime = time;
-            mostKillsPlayer = new Dictionary<String, KillCounterUtility>();
+            listOfPlayersKillStats = new Dictionary<String, KillCounterUtility>();
             recheckCounter = 0;
             Scp106ValidatorCoroutine = Timing.RunCoroutine(checkLast106());
         }
@@ -78,8 +78,8 @@ namespace MvpUtility.EventHandling
                 {
                     if (ev.Handler.Type is Exiled.API.Enums.DamageType.PocketDimension && lastKnown106 != null)
                     {
-                        mostKillsPlayer.TryAdd(lastKnown106.Nickname, new KillCounterUtility(plugin));
-                        mostKillsPlayer[lastKnown106.Nickname].parseKillerStats(lastKnown106, ev.Target);
+                        listOfPlayersKillStats.TryAdd(lastKnown106.Nickname, new KillCounterUtility(plugin));
+                        listOfPlayersKillStats[lastKnown106.Nickname].parseKillerStats(lastKnown106, ev.Target);
                     }
                 }
                 // Try to add new killer, and then parse their behavior types
@@ -91,8 +91,8 @@ namespace MvpUtility.EventHandling
                 {
                     return;
                 }
-                mostKillsPlayer.TryAdd(ev.Killer.Nickname, new KillCounterUtility(plugin));
-                mostKillsPlayer[ev.Killer.Nickname].parseKillerStats(ev.Killer, ev.Target);
+                listOfPlayersKillStats.TryAdd(ev.Killer.Nickname, new KillCounterUtility(plugin));
+                listOfPlayersKillStats[ev.Killer.Nickname].parseKillerStats(ev.Killer, ev.Target);
             }
             catch (Exception ex)
             {
@@ -107,8 +107,8 @@ namespace MvpUtility.EventHandling
 
             if (lastKnown106 != null)
             {
-                mostKillsPlayer.TryAdd(lastKnown106.Nickname, new KillCounterUtility(plugin));
-                mostKillsPlayer[lastKnown106.Nickname].parseKillerStats(lastKnown106, ev.Player);
+                listOfPlayersKillStats.TryAdd(lastKnown106.Nickname, new KillCounterUtility(plugin));
+                listOfPlayersKillStats[lastKnown106.Nickname].parseKillerStats(lastKnown106, ev.Player);
             }
         }
 
@@ -163,10 +163,6 @@ namespace MvpUtility.EventHandling
                 // Iterate our possibility output list to find the first 3, if there are.  
                 for (int pos = 0; pos < outputList.Count && choices.Count != 3; pos++)
                 {
-                    if (outputList[pos] == null)
-                    {
-                        break;
-                    }
                     choices.Add(outputList[pos]);
                 }
 
@@ -177,11 +173,11 @@ namespace MvpUtility.EventHandling
                 }
             }
 
+            String hintToShow = choices[0] + choices[1] + choices[2];
             // Iterate every player and show the hints. 
             foreach (Player player in Player.List)
             {
-                // String.Join(' ', choices.ToArray()) also works but no, why bother to slow it down. It's always 3. Unless that changes. 
-                player.ShowHint($"{choices[0] + choices[1] + choices[2]}", 10);
+                player.ShowHint(hintToShow, plugin.Config.hintDisplayLimit);
             }
         }
 
@@ -212,50 +208,52 @@ namespace MvpUtility.EventHandling
             }
 
             List<Tuple<String, RoleType, int>> possibleOutcomes = new List<Tuple<String, RoleType, int>>(){
-                Tuple.Create("", RoleType.None, int.MaxValue ), // Worst player
-                Tuple.Create("", RoleType.None, int.MinValue ), // Best player (Most kills human on human)
-                Tuple.Create("", RoleType.None, int.MinValue ), // Best player (Killer in general, all entities)
-                Tuple.Create("", RoleType.None, int.MinValue ), // Best player (Best per Mtf)
-                Tuple.Create("", RoleType.None, int.MinValue ), // Best player (Best per Chaos)
-                Tuple.Create("", RoleType.None, int.MinValue ), // Best player (Best per ScpTeam)
+                Tuple.Create(string.Empty, RoleType.None, int.MaxValue ), // Worst player
+                Tuple.Create(string.Empty, RoleType.None, int.MinValue ), // Best player (Most kills human on human)
+                Tuple.Create(string.Empty, RoleType.None, int.MinValue ), // Best player (Killer in general, all entities)
+                Tuple.Create(string.Empty, RoleType.None, int.MinValue ), // Best player (Best per Mtf)
+                Tuple.Create(string.Empty, RoleType.None, int.MinValue ), // Best player (Best per Chaos)
+                Tuple.Create(string.Empty, RoleType.None, int.MinValue ), // Best player (Best per ScpTeam)
             };
 
-            foreach (KeyValuePair<String, KillCounterUtility> killerPairedData in mostKillsPlayer)
+            foreach (KeyValuePair<String, KillCounterUtility> killerPairedData in listOfPlayersKillStats)
             {
                 if (plugin.Config.roundEndBehaviors.showLeastKillsHuman.ContainsKey(true))
                 {
                     // Preallocated position of 0, only way I could think to solve without multi-for loops (Same for the rest)
-                    handleWorstPlayer(ref possibleOutcomes, killerPairedData.Value.getWorstRole(), killerPairedData.Key, 0);
+                    handlePlayerBundling(ref possibleOutcomes, killerPairedData.Value.getWorstRole(), killerPairedData.Key, 0);
                 }
                 if (plugin.Config.roundEndBehaviors.showMostKillsHumanOnHuman.ContainsKey(true))
                 {
-                    handleBestPlayer(ref possibleOutcomes, killerPairedData.Value.getBestHumanToHuman(), killerPairedData.Key, 1);
+                    handlePlayerBundling(ref possibleOutcomes, killerPairedData.Value.getBestHumanToHuman(), killerPairedData.Key, 1);
                 }
                 if (plugin.Config.roundEndBehaviors.showMostKillsKiller.ContainsKey(true))
                 {
-                    handleBestPlayer(ref possibleOutcomes, killerPairedData.Value.getBestKiller(), killerPairedData.Key, 2);
+                    handlePlayerBundling(ref possibleOutcomes, killerPairedData.Value.getBestKiller(), killerPairedData.Key, 2);
                 }
                 if (plugin.Config.roundEndBehaviors.showMostKillsMtfTeam.ContainsKey(true))
                 {
-                    handleBestPlayer(ref possibleOutcomes, killerPairedData.Value.getBestKillsPerTeam(Team.MTF), killerPairedData.Key, 3);
+                    handlePlayerBundling(ref possibleOutcomes, killerPairedData.Value.getBestKillsPerTeam(Team.MTF), killerPairedData.Key, 3);
                 }
 
                 if (plugin.Config.roundEndBehaviors.showMostKillsChaosTeam.ContainsKey(true))
                 {
-                    handleBestPlayer(ref possibleOutcomes, killerPairedData.Value.getBestKillsPerTeam(Team.CHI), killerPairedData.Key, 4);
+                    handlePlayerBundling(ref possibleOutcomes, killerPairedData.Value.getBestKillsPerTeam(Team.CHI), killerPairedData.Key, 4);
                 }
                 if (plugin.Config.roundEndBehaviors.showMostKillsScpTeam.ContainsKey(true))
                 {
-                    handleBestPlayer(ref possibleOutcomes, killerPairedData.Value.getBestKillsPerTeam(Team.SCP), killerPairedData.Key, 5);
+                    handlePlayerBundling(ref possibleOutcomes, killerPairedData.Value.getBestKillsPerTeam(Team.SCP), killerPairedData.Key, 5);
                 }
 
             }
             // Alternative is a for loop but the problem is if I do if if, I run same logic, if I do else if, I run into skipping 
             // because the first if, or nth will always be called
 
+            // TODO make return a struct/class that has a success/fail flag instead of this checking crap against something crap. 
+
             if (plugin.Config.roundEndBehaviors.showLeastKillsHuman.ContainsKey(true))
             {
-                if (possibleOutcomes[0].Item3 != int.MaxValue)
+                if (possibleOutcomes[0].Item2 != RoleType.None)
                 {
                     customString = plugin.Config.roundEndBehaviors.showLeastKillsHuman[true] ?? string.Empty;
                     generateString(ref outputList, possibleOutcomes, customString,
@@ -264,7 +262,7 @@ namespace MvpUtility.EventHandling
             }
             if (plugin.Config.roundEndBehaviors.showMostKillsHumanOnHuman.ContainsKey(true))
             {
-                if (possibleOutcomes[1].Item3 != int.MaxValue && possibleOutcomes[1].Item3 != int.MinValue)
+                if (possibleOutcomes[1].Item2 != RoleType.None)
                 {
                     customString = plugin.Config.roundEndBehaviors.showMostKillsHumanOnHuman[true] ?? string.Empty;
                     generateString(ref outputList, possibleOutcomes, customString,
@@ -274,7 +272,7 @@ namespace MvpUtility.EventHandling
             }
             if (plugin.Config.roundEndBehaviors.showMostKillsKiller.ContainsKey(true))
             {
-                if (possibleOutcomes[2].Item3 != int.MinValue)
+                if (possibleOutcomes[2].Item2 != RoleType.None)
                 {
                     customString = plugin.Config.roundEndBehaviors.showMostKillsKiller[true] ?? string.Empty;
                     generateString(ref outputList, possibleOutcomes, customString,
@@ -285,7 +283,7 @@ namespace MvpUtility.EventHandling
             }
             if (plugin.Config.roundEndBehaviors.showMostKillsMtfTeam.ContainsKey(true))
             {
-                if (possibleOutcomes[3].Item3 != int.MinValue)
+                if (possibleOutcomes[3].Item2 != RoleType.None)
                 {
                     customString = plugin.Config.roundEndBehaviors.showMostKillsMtfTeam[true] ?? string.Empty;
                     generateString(ref outputList, possibleOutcomes, customString,
@@ -297,7 +295,7 @@ namespace MvpUtility.EventHandling
 
             if (plugin.Config.roundEndBehaviors.showMostKillsChaosTeam.ContainsKey(true))
             {
-                if (possibleOutcomes[4].Item3 != int.MinValue)
+                if (possibleOutcomes[4].Item2 != RoleType.None)
                 {
                     customString = plugin.Config.roundEndBehaviors.showMostKillsChaosTeam[true] ?? string.Empty;
                     generateString(ref outputList, possibleOutcomes, customString,
@@ -308,16 +306,25 @@ namespace MvpUtility.EventHandling
 
             if (plugin.Config.roundEndBehaviors.showMostKillsScpTeam.ContainsKey(true))
             {
-                if (possibleOutcomes[5].Item3 != int.MinValue)
+                if (possibleOutcomes[5].Item2 != RoleType.None)
                 {
                     customString = plugin.Config.roundEndBehaviors.showMostKillsScpTeam[true] ?? string.Empty;
                     generateString(ref outputList, possibleOutcomes, customString,
-                            $"<line-height=75%><voffset=30em><align=center><color=#D56F3E> {possibleOutcomes[5].Item1} </color>" +
-                $" had {possibleOutcomes[5].Item3} kills as {possibleOutcomes[5].Item2} (SCP). </align> </voffset> \n", 5);
+                        $"<line-height=75%><voffset=30em><align=center><color=#D56F3E> {possibleOutcomes[5].Item1} </color>" +
+                        $" had {possibleOutcomes[5].Item3} kills as {possibleOutcomes[5].Item2} (SCP). </align> </voffset> \n", 5);
                 }
             }
         }
 
+
+        /// <summary>
+        /// Generates the string for the hints to display. If config does not have a value set this will default to a specific string per scenario. 
+        /// </summary>
+        /// <param name="outputList"></param>
+        /// <param name="possibleOutcomes"></param>
+        /// <param name="configValue"></param>
+        /// <param name="defaultValue"></param>
+        /// <param name="pos"></param>
         private void generateString(ref List<string> outputList, List<Tuple<string, RoleType, int>> possibleOutcomes, String configValue, String defaultValue, int pos)
         {
 
@@ -332,7 +339,15 @@ namespace MvpUtility.EventHandling
 
         }
 
-        private void handleBestPlayer(ref List<Tuple<string, RoleType, int>> possibleOutcomes, Tuple<RoleType, int> bestRoleCalc, string killerPairedDataName, int outcomePosition)
+
+        /// <summary>
+        /// This logic handles generating the paired data required for outputing to hint for all scenarios.
+        /// </summary>
+        /// <param name="possibleOutcomes"></param>
+        /// <param name="bestRoleCalc"></param>
+        /// <param name="killerPairedDataName"></param>
+        /// <param name="outcomePosition"></param>
+        private void handlePlayerBundling(ref List<Tuple<string, RoleType, int>> possibleOutcomes, Tuple<RoleType, int> bestRoleCalc, string killerPairedDataName, int outcomePosition)
         {
             if (possibleOutcomes[outcomePosition].Item1.IsEmpty())
             {
@@ -347,19 +362,6 @@ namespace MvpUtility.EventHandling
             }
         }
 
-        private void handleWorstPlayer(ref List<Tuple<string, RoleType, int>> possibleOutcomes, Tuple<RoleType, int> worstRoleCalc, string killerPairedDataName, int outcomePosition)
-        {
-            if (possibleOutcomes[outcomePosition].Item1.IsEmpty())
-            {
-                possibleOutcomes[outcomePosition] = (Tuple.Create(killerPairedDataName, worstRoleCalc.Item1, worstRoleCalc.Item2));
-            }
-            else
-            {
-                if (worstRoleCalc.Item2 < possibleOutcomes[outcomePosition].Item3)
-                {
-                    possibleOutcomes[outcomePosition] = (Tuple.Create(killerPairedDataName, worstRoleCalc.Item1, worstRoleCalc.Item2));
-                }
-            }
-        }
+
     }
 }
