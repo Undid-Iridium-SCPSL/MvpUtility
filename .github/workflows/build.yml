@@ -6,7 +6,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        dotnet-version: [ '4.7.x', '5.0.x' ]
+        dotnet-version: [ '5.0.x' ]
     steps:
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v2
