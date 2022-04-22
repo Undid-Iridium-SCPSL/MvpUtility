@@ -66,32 +66,38 @@ namespace MvpUtility.EventHandling
         internal void OnDying(DyingEventArgs ev)
         {
 
-            if (ev.Target.Role is Exiled.API.Features.Roles.Scp106Role)
+            try
             {
-                lastKnown106 = null;
-                Timing.KillCoroutines(Scp106ValidatorCoroutine);
-            }
-
-            if (ev.Handler != null)
-            {
-                if (ev.Handler.Type is Exiled.API.Enums.DamageType.PocketDimension && lastKnown106 != null)
+                if (ev.Target.Role is Exiled.API.Features.Roles.Scp106Role)
                 {
-                    mostKillsPlayer.TryAdd(lastKnown106.Nickname, new KillCounterUtility(plugin));
-                    mostKillsPlayer[lastKnown106.Nickname].parseKillerStats(lastKnown106, ev.Target);
+                    lastKnown106 = null;
+                    Timing.KillCoroutines(Scp106ValidatorCoroutine);
                 }
-            }
-            // Try to add new killer, and then parse their behavior types
-            if (ev.Killer == null)
-            {
-                return;
-            }
-            if (ev.Killer.Nickname == null)
-            {
-                return;
-            }
-            mostKillsPlayer.TryAdd(ev.Killer.Nickname, new KillCounterUtility(plugin));
-            mostKillsPlayer[ev.Killer.Nickname].parseKillerStats(ev.Killer, ev.Target);
 
+                if (ev.Handler != null)
+                {
+                    if (ev.Handler.Type is Exiled.API.Enums.DamageType.PocketDimension && lastKnown106 != null)
+                    {
+                        mostKillsPlayer.TryAdd(lastKnown106.Nickname, new KillCounterUtility(plugin));
+                        mostKillsPlayer[lastKnown106.Nickname].parseKillerStats(lastKnown106, ev.Target);
+                    }
+                }
+                // Try to add new killer, and then parse their behavior types
+                if (ev.Killer == null)
+                {
+                    return;
+                }
+                if (ev.Killer.Nickname == null)
+                {
+                    return;
+                }
+                mostKillsPlayer.TryAdd(ev.Killer.Nickname, new KillCounterUtility(plugin));
+                mostKillsPlayer[ev.Killer.Nickname].parseKillerStats(ev.Killer, ev.Target);
+            }
+            catch (Exception ex)
+            {
+                Log.Debug($" It seems we failed on OnDying, here's why {ex}", plugin.Config.enableDebug);
+            }
             //Either just do this directly or give a queue this data for a thread, so we can offload logic to threads
             //Had most kills, killed most scp's, escaped first, most kills per team Nickname : KillCounter(class)
         }
@@ -183,11 +189,6 @@ namespace MvpUtility.EventHandling
                 // String.Join(' ', choices.ToArray()) also works but no, why bother to slow it down. It's always 3. Unless that changes. 
                 player.ShowHint($"{new string('\n', 15)} " + choices[0] + choices[1] + choices[2], 10);
             }
-
-            // Clearing items just in case. 
-            firstPlayerEscape = null;
-            mostKillsPlayer = null;
-
         }
 
 
@@ -239,7 +240,6 @@ namespace MvpUtility.EventHandling
                 }
 
             }
-            Log.Debug("handlePossibleOutputs3", plugin.Config.enableDebug);
             // Alternative is a for loop but the problem is if I do if if, I run same logic, if I do else if, I run into skipping 
             // because the first if, or nth will always be called
 
@@ -248,17 +248,15 @@ namespace MvpUtility.EventHandling
                 if (possibleOutcomes[0].Item3 != int.MaxValue)
                 {
                     outputList.Add($"<align=center><color=#F6511D> {possibleOutcomes[0].Item1} </color>" +
-                  $" killed {possibleOutcomes[0].Item3} people, how sad. </align> \n");
+                  $" had {possibleOutcomes[0].Item3} kills, how sad. </align> \n");
                 }
-
-
             }
             if (plugin.Config.roundEndBehaviors.showMostKillsHumanOnHuman)
             {
                 if (possibleOutcomes[1].Item3 != int.MaxValue && possibleOutcomes[1].Item3 != int.MinValue)
                 {
                     outputList.Add($"<align=center><color=#241623> {possibleOutcomes[1].Item1} </color>" +
-               $" killed {possibleOutcomes[1].Item3} person as a human. </align> \n");
+               $" had {possibleOutcomes[1].Item3} kills as a lonely human. </align> \n");
                 }
             }
             if (plugin.Config.roundEndBehaviors.showMostKillsKiller)
@@ -266,7 +264,7 @@ namespace MvpUtility.EventHandling
                 if (possibleOutcomes[2].Item3 != int.MinValue)
                 {
                     outputList.Add($"<align=center><color=#D0CD94> {possibleOutcomes[2].Item1} </color>" +
-               $" killed {possibleOutcomes[2].Item3} entities. </align> \n");
+               $" had killed {possibleOutcomes[2].Item3} entities. </align> \n");
                 }
 
             }
@@ -275,7 +273,7 @@ namespace MvpUtility.EventHandling
                 if (possibleOutcomes[3].Item3 != int.MinValue)
                 {
                     outputList.Add($"<align=center><color=#3C787E> {possibleOutcomes[3].Item1} </color>" +
-                $" killed {possibleOutcomes[3].Item3} people as {possibleOutcomes[3].Item2} (MTF). </align> \n");
+                $" had {possibleOutcomes[3].Item3} kills as {possibleOutcomes[3].Item2} (MTF). </align> \n");
                 }
 
             }
@@ -285,7 +283,7 @@ namespace MvpUtility.EventHandling
                 if (possibleOutcomes[4].Item3 != int.MinValue)
                 {
                     outputList.Add($"<align=center><color=#C7EF00> {possibleOutcomes[4].Item1} </color>" +
-                $" killed {possibleOutcomes[4].Item3} people as {possibleOutcomes[4].Item2} (Chaos). </align> \n");
+                $" had {possibleOutcomes[4].Item3} kills as {possibleOutcomes[4].Item2} (Chaos). </align> \n");
                 }
             }
 
@@ -294,7 +292,7 @@ namespace MvpUtility.EventHandling
                 if (possibleOutcomes[5].Item3 != int.MinValue)
                 {
                     outputList.Add($"<align=center><color=#D56F3E> {possibleOutcomes[5].Item1} </color>" +
-                $" killed {possibleOutcomes[5].Item3} people as {possibleOutcomes[5].Item2} (SCP). </align> \n");
+                $" had {possibleOutcomes[5].Item3} kills as {possibleOutcomes[5].Item2} (SCP). </align> \n");
                 }
             }
             Log.Debug("handlePossibleOutputs4", plugin.Config.enableDebug);

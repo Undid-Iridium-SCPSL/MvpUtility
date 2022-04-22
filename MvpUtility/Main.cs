@@ -75,6 +75,7 @@ namespace MvpUtility
             PlayerEvents.FailingEscapePocketDimension -= mvpStatsMonitor.OnDimensionDeath;
             ServerEvents.RoundEnded -= mvpStatsMonitor.OnRoundEnd;
 
+            mvpStatsMonitor = null;
             Instance = null;
             base.OnDisabled();
         }
