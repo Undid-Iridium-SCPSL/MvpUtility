@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
-	<LangVersion>7</LangVersion>
+	<LangVersion>9</LangVersion>
     <AssemblyName>MvpUtility</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Authors>Undid-Iridium</Authors>
