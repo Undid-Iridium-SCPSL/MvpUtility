@@ -8,8 +8,10 @@ jobs:
       matrix:
         dotnet-version: ['4.7.x', '5.0.x' ]
     steps:
-    - name: Setup .NET Core SDK 4.7.x
+    - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v2
+      with: 
+        dotnet-version: '4.7.x'
 
     - uses: actions/checkout@v2.3.1
 
