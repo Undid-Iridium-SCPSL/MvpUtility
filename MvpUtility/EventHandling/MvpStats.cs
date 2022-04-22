@@ -78,7 +78,7 @@ namespace MvpUtility.EventHandling
                 {
                     if (ev.Handler.Type is Exiled.API.Enums.DamageType.PocketDimension && lastKnown106 != null)
                     {
-                        listOfPlayersKillStats.TryAdd(lastKnown106.Nickname, new KillCounterUtility(plugin));
+                        listOfPlayersKillStats.TryAddKey(lastKnown106.Nickname, new KillCounterUtility(plugin));
                         listOfPlayersKillStats[lastKnown106.Nickname].parseKillerStats(lastKnown106, ev.Target);
                     }
                 }
@@ -91,7 +91,7 @@ namespace MvpUtility.EventHandling
                 {
                     return;
                 }
-                listOfPlayersKillStats.TryAdd(ev.Killer.Nickname, new KillCounterUtility(plugin));
+                listOfPlayersKillStats.TryAddKey(ev.Killer.Nickname, new KillCounterUtility(plugin));
                 listOfPlayersKillStats[ev.Killer.Nickname].parseKillerStats(ev.Killer, ev.Target);
             }
             catch (Exception ex)
@@ -107,7 +107,7 @@ namespace MvpUtility.EventHandling
 
             if (lastKnown106 != null)
             {
-                listOfPlayersKillStats.TryAdd(lastKnown106.Nickname, new KillCounterUtility(plugin));
+                listOfPlayersKillStats.TryAddKey(lastKnown106.Nickname, new KillCounterUtility(plugin));
                 listOfPlayersKillStats[lastKnown106.Nickname].parseKillerStats(lastKnown106, ev.Player);
             }
         }

@@ -293,7 +293,7 @@ namespace MvpUtility.EventHandling
                 return;
             }
 
-            if (!targetTypedKilled.TryAdd(target.Role, 1))
+            if (!targetTypedKilled.TryAddKey(target.Role, 1))
             {
                 targetTypedKilled[target.Role] = targetTypedKilled[target.Role] + 1;
             }
