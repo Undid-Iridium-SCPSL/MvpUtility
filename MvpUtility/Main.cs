@@ -1,19 +1,15 @@
-﻿using Exiled.API.Features;
-using HarmonyLib;
-using MvpUtility.EventHandling;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PlayerEvents = Exiled.Events.Handlers.Player;
-using ServerEvents = Exiled.Events.Handlers.Server;
-
-
-namespace MvpUtility
+﻿namespace MvpUtility
 {
+    using Exiled.API.Features;
+    using HarmonyLib;
+    using MvpUtility.EventHandling;
+    using System;
+    using PlayerEvents = Exiled.Events.Handlers.Player;
+    using ServerEvents = Exiled.Events.Handlers.Server;
 
-
+    /// <summary>
+    /// Main plugin instance for MvpPlugin.
+    /// </summary>
     public class Main : Plugin<Config>
     {
         private Harmony harmony;
@@ -33,12 +29,12 @@ namespace MvpUtility
         public override Version RequiredExiledVersion { get; } = new Version(5, 1, 3);
 
         /// <inheritdoc />
-        public override Version Version { get; } = new Version(1, 0, 5);
+        public override Version Version { get; } = new Version(1, 0, 6);
 
         /// <summary>
         /// Gets an instance of the <see cref="MvpStats"/> class.
         /// </summary>
-        public MvpStats mvpStatsMonitor { get; private set; }
+        public MvpStats MvpStatsMonitor { get; private set; }
 
         /// <inheritdoc />
         public override void OnEnabled()
@@ -48,14 +44,14 @@ namespace MvpUtility
             harmony = new Harmony($"com.Undid-Iridium.MvpUtility.{DateTime.UtcNow.Ticks}");
             harmony.PatchAll();
 
-            mvpStatsMonitor = new MvpStats(this);
+            MvpStatsMonitor = new MvpStats(this);
 
-            PlayerEvents.Escaping += mvpStatsMonitor.OnEscape;
-            PlayerEvents.Dying += mvpStatsMonitor.OnDying;
-            ServerEvents.RoundStarted += mvpStatsMonitor.OnStart;
+            PlayerEvents.Escaping += MvpStatsMonitor.OnEscape;
+            PlayerEvents.Dying += MvpStatsMonitor.OnDying;
+            ServerEvents.RoundStarted += MvpStatsMonitor.OnStart;
 
-            ServerEvents.RoundEnded += mvpStatsMonitor.OnRoundEnd;
-            PlayerEvents.FailingEscapePocketDimension += mvpStatsMonitor.OnDimensionDeath;
+            ServerEvents.RoundEnded += MvpStatsMonitor.OnRoundEnd;
+            PlayerEvents.FailingEscapePocketDimension += MvpStatsMonitor.OnDimensionDeath;
 
             base.OnEnabled();
         }
@@ -69,13 +65,13 @@ namespace MvpUtility
             harmony = null;
 
 
-            PlayerEvents.Escaping -= mvpStatsMonitor.OnEscape;
-            ServerEvents.RoundStarted -= mvpStatsMonitor.OnStart;
-            PlayerEvents.Dying -= mvpStatsMonitor.OnDying;
-            PlayerEvents.FailingEscapePocketDimension -= mvpStatsMonitor.OnDimensionDeath;
-            ServerEvents.RoundEnded -= mvpStatsMonitor.OnRoundEnd;
+            PlayerEvents.Escaping -= MvpStatsMonitor.OnEscape;
+            ServerEvents.RoundStarted -= MvpStatsMonitor.OnStart;
+            PlayerEvents.Dying -= MvpStatsMonitor.OnDying;
+            PlayerEvents.FailingEscapePocketDimension -= MvpStatsMonitor.OnDimensionDeath;
+            ServerEvents.RoundEnded -= MvpStatsMonitor.OnRoundEnd;
 
-            mvpStatsMonitor = null;
+            MvpStatsMonitor = null;
             Instance = null;
             base.OnDisabled();
         }
