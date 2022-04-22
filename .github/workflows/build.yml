@@ -38,7 +38,9 @@ jobs:
         }
       env:
         EXILED_REFERENCES: ${{ github.workspace }}/References
-
+      with:
+        dotnet-version: '4.7.x'
+        
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
