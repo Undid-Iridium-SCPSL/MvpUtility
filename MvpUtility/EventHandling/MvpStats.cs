@@ -206,7 +206,7 @@ namespace MvpUtility.EventHandling
                     }
                     else
                     {
-                        outputList.Add(string.Format(customString, firstPlayerEscape.Item1, firstPlayerEscape.Item2));
+                        outputList.Add(string.Format(customString, firstPlayerEscape.Item1, TimeSpan.FromSeconds(firstPlayerEscape.Item2).ToString(@"mm\:ss\:fff")));
                     }
                 }
             }
@@ -259,7 +259,7 @@ namespace MvpUtility.EventHandling
                 {
                     customString = plugin.Config.roundEndBehaviors.showLeastKillsHuman[true] ?? string.Empty;
                     generateString(ref outputList, possibleOutcomes, customString,
-                        $"<line-height=75%><voffset=30em><align=center><color=#F6511D> {possibleOutcomes[0].Item1} </color> had {possibleOutcomes[0].Item3} kills, how sad. </align> </voffset> \n");
+                        $"<line-height=75%><voffset=30em><align=center><color=#F6511D> {possibleOutcomes[0].Item1} </color> had {possibleOutcomes[0].Item3} kills, how sad. </align> </voffset> \n", 0);
                 }
             }
             if (plugin.Config.roundEndBehaviors.showMostKillsHumanOnHuman.ContainsKey(true))
@@ -269,7 +269,7 @@ namespace MvpUtility.EventHandling
                     customString = plugin.Config.roundEndBehaviors.showMostKillsHumanOnHuman[true] ?? string.Empty;
                     generateString(ref outputList, possibleOutcomes, customString,
                         $"<line-height=75%><voffset=30em><align=center><color=#241623> {possibleOutcomes[1].Item1} </color>" +
-                        $" had {possibleOutcomes[1].Item3} kills as a lonely human. </align> </voffset> \n");
+                        $" had {possibleOutcomes[1].Item3} kills as a lonely human. </align> </voffset> \n", 1);
                 }
             }
             if (plugin.Config.roundEndBehaviors.showMostKillsKiller.ContainsKey(true))
@@ -279,7 +279,7 @@ namespace MvpUtility.EventHandling
                     customString = plugin.Config.roundEndBehaviors.showMostKillsKiller[true] ?? string.Empty;
                     generateString(ref outputList, possibleOutcomes, customString,
                         $"<line-height=75%><voffset=30em><align=center><color=#D0CD94> {possibleOutcomes[2].Item1} </color>" +
-                        $" had killed {possibleOutcomes[2].Item3} entities. </align> </voffset> \n");
+                        $" had killed {possibleOutcomes[2].Item3} entities. </align> </voffset> \n", 2);
                 }
 
             }
@@ -290,7 +290,7 @@ namespace MvpUtility.EventHandling
                     customString = plugin.Config.roundEndBehaviors.showMostKillsMtfTeam[true] ?? string.Empty;
                     generateString(ref outputList, possibleOutcomes, customString,
                         $"<line-height=75%><voffset=30em><align=center><color=#3C787E> {possibleOutcomes[3].Item1} </color>" +
-                        $" had {possibleOutcomes[3].Item3} kills as {possibleOutcomes[3].Item2} (MTF). </align> </voffset> \n");
+                        $" had {possibleOutcomes[3].Item3} kills as {possibleOutcomes[3].Item2} (MTF). </align> </voffset> \n", 3);
                 }
 
             }
@@ -302,7 +302,7 @@ namespace MvpUtility.EventHandling
                     customString = plugin.Config.roundEndBehaviors.showMostKillsChaosTeam[true] ?? string.Empty;
                     generateString(ref outputList, possibleOutcomes, customString,
                         $"<line-height=75%><voffset=30em><align=center><color=#C7EF00> {possibleOutcomes[4].Item1} </color>" +
-                        $" had {possibleOutcomes[4].Item3} kills as {possibleOutcomes[4].Item2} (Chaos). </align> </voffset> \n");
+                        $" had {possibleOutcomes[4].Item3} kills as {possibleOutcomes[4].Item2} (Chaos). </align> </voffset> \n", 4);
                 }
             }
 
@@ -313,12 +313,12 @@ namespace MvpUtility.EventHandling
                     customString = plugin.Config.roundEndBehaviors.showMostKillsScpTeam[true] ?? string.Empty;
                     generateString(ref outputList, possibleOutcomes, customString,
                             $"<line-height=75%><voffset=30em><align=center><color=#D56F3E> {possibleOutcomes[5].Item1} </color>" +
-                $" had {possibleOutcomes[5].Item3} kills as {possibleOutcomes[5].Item2} (SCP). </align> </voffset> \n");
+                $" had {possibleOutcomes[5].Item3} kills as {possibleOutcomes[5].Item2} (SCP). </align> </voffset> \n", 5);
                 }
             }
         }
 
-        private void generateString(ref List<string> outputList, List<Tuple<string, RoleType, int>> possibleOutcomes, String configValue, String defaultValue)
+        private void generateString(ref List<string> outputList, List<Tuple<string, RoleType, int>> possibleOutcomes, String configValue, String defaultValue, int pos)
         {
 
             if (configValue.Equals(string.Empty))
@@ -327,7 +327,7 @@ namespace MvpUtility.EventHandling
             }
             else
             {
-                outputList.Add(string.Format(configValue, possibleOutcomes[0].Item1, possibleOutcomes[1].Item2, possibleOutcomes[1].Item3));
+                outputList.Add(string.Format(configValue, possibleOutcomes[pos].Item1, possibleOutcomes[pos].Item2, possibleOutcomes[pos].Item3));
             }
 
         }
