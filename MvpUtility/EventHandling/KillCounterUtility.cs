@@ -1,46 +1,50 @@
-﻿using Exiled.API.Features;
-using Respawning;
-using System;
-using System.Collections.Generic;
-
-namespace MvpUtility.EventHandling
+﻿namespace MvpUtility.EventHandling
 {
+    using Exiled.API.Features;
+    using Respawning;
+    using System;
+    using System.Collections.Generic;
+
+    /// <summary>
+    /// KillCounterUtility handles information regarding a Role to the Roles they kill.
+    /// </summary>
     internal class KillCounterUtility
     {
-
-
-
-        //public int killsAgainstHumans { get => killsAgainstHumans; set => killsAgainstHumans = value; }
-
+        // Not counting Scientist (I would assume not really a focus, as easy to add as RoleType.Scientist)
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PickupChecker"/> class.
+        /// All the possible NTF's in game by Role (Not including Scientist)
         /// </summary>
-        /// <param name="plugin">An instance of the <see cref="Plugin"/> class.</param>
-        Main plugin { get; set; }
+        private static List<RoleType> allPossibleNtf = new List<RoleType>() { RoleType.NtfCaptain, RoleType.NtfPrivate, RoleType.NtfSergeant, RoleType.NtfSpecialist, RoleType.FacilityGuard };
 
-        public int totalKills { get; set; }
+        // Not counting D-Boys (I would assume not really a focus, as easy to add as RoleType.DBoy)
+        private static List<RoleType> allPossibleChaos = new List<RoleType>() { RoleType.ChaosConscript, RoleType.ChaosMarauder, RoleType.ChaosRepressor, RoleType.ChaosRifleman };
 
+        private static List<RoleType> allPossibleScps = new List<RoleType>() { RoleType.Scp173, RoleType.Scp106, RoleType.Scp049, RoleType.Scp079
+            , RoleType.Scp096, RoleType.Scp0492, RoleType.Scp93953, RoleType.Scp93989, };
+
+        /// <summary>
+        /// Gets or sets roles and their targets types.
+        /// </summary>
         private Dictionary<RoleType, KillsPerType> killsAsRole;
 
-        // Not counting Scientist (I would assume not really a focus, as easy to add as RoleType.Scientist)
-        public static List<RoleType> allPossibleNtf = new List<RoleType>() { RoleType.NtfCaptain, RoleType.NtfPrivate, RoleType.NtfSergeant, RoleType.NtfSpecialist };
-        // Not counting D-Boys (I would assume not really a focus, as easy to add as RoleType.DBoy)
-        public static List<RoleType> allPossibleChaos = new List<RoleType>() { RoleType.ChaosConscript, RoleType.ChaosMarauder, RoleType.ChaosRepressor, RoleType.ChaosRifleman };
+        /// <summary>
+        /// Gets or sets total kills for player regardless of role.
+        /// </summary>
+        public int TotalKills { get; set; }
 
-        public static List<RoleType> allPossibleScps = new List<RoleType>() {  RoleType.Scp173, RoleType.Scp106, RoleType.Scp049, RoleType.Scp079
-            , RoleType.Scp096, RoleType.Scp0492, RoleType.Scp93953, RoleType.Scp93989 };
+        /// <summary>
+        /// Gets or sets a new instance of the <see cref="KillCounterUtility"/> class.
+        /// </summary>
+        private Main MvpPlugin { get; set; }
 
         public KillCounterUtility(Main instance)
         {
-
             killsAsRole = new Dictionary<RoleType, KillsPerType>();
-            plugin = instance;
+            MvpPlugin = instance;
         }
 
-
         //Had most kills, killed most scp's, escaped first, most kills per team Nickname : KillCounter(class)
-
 
         public void parseKillerStats(Player killer, Player target)
         {
@@ -49,7 +53,7 @@ namespace MvpUtility.EventHandling
                 return;
             }
 
-            totalKills++;
+            TotalKills++;
 
             if (target == null)
             {
@@ -60,10 +64,10 @@ namespace MvpUtility.EventHandling
             if (!killsAsRole.TryGetValue(killer.Role, out KillsPerType killPerType))
             {
                 killPerType = new KillsPerType();
-                Log.Debug("We are adding killer to role ", plugin.Config.enableDebug);
+                Log.Debug("We are adding killer to role ", MvpPlugin.Config.EnableDebug);
                 killsAsRole.Add(killer.Role, killPerType);
             }
-            Log.Debug($"We are parsing type {killer.Role} and target was {target.Role}", plugin.Config.enableDebug);
+            Log.Debug($"We are parsing type {killer.Role} and target was {target.Role}", MvpPlugin.Config.EnableDebug);
             killPerType.parseTargetType(target);
 
         }
@@ -101,7 +105,7 @@ namespace MvpUtility.EventHandling
                 {
                     continue;
                 }
-                Log.Debug($"We are parsing team with {teamToParse[pos]} and this was output {killPerType.totalKillsForMyRole()} ", plugin.Config.enableDebug);
+                Log.Debug($"We are parsing team with {teamToParse[pos]} and this was output {killPerType.totalKillsForMyRole()} ", MvpPlugin.Config.EnableDebug);
                 if (bestKillsPerTeam < killPerType.totalKillsForMyRole())
                 {
                     currentBestRole = teamToParse[pos];
@@ -116,10 +120,10 @@ namespace MvpUtility.EventHandling
         /// <summary>
         /// Returns the total amount of entity kills by this player. 
         /// </summary>
-        /// <returns> <see cref="Tuple{RoleType, int}"/></returns>
+        /// <returns> <see cref="Tuple"/></returns>
         internal Tuple<RoleType, int> getBestKiller()
         {
-            return Tuple.Create(RoleType.None, totalKills);
+            return Tuple.Create(RoleType.None, TotalKills);
         }
 
         /// <summary>
@@ -204,7 +208,7 @@ namespace MvpUtility.EventHandling
         public Tuple<RoleType, int> getBestHumanToHuman()
         {
             Tuple<RoleType, int> currentBestRole = Tuple.Create(RoleType.None, int.MaxValue);
-            Log.Debug($"What is the human dict {killsAsRole.Count}", plugin.Config.enableDebug);
+            Log.Debug($"What is the human dict {killsAsRole.Count}", MvpPlugin.Config.EnableDebug);
             foreach (KeyValuePair<RoleType, KillsPerType> pairedData in killsAsRole)
             {
                 if (!isScp(pairedData.Key))
