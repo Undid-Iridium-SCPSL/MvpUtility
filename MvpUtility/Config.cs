@@ -47,5 +47,6 @@ namespace MvpUtility
 
         [Description("Control over what types to show")]
         public roundEndConfigurations roundEndBehaviors { get; set; } = new roundEndConfigurations();
+        public float CheckInterval { get; set; } = 10f;
     }
 }

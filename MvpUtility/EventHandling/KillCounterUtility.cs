@@ -30,7 +30,7 @@ namespace MvpUtility.EventHandling
         public static List<RoleType> allPossibleScps = new List<RoleType>() {  RoleType.Scp173, RoleType.Scp106, RoleType.Scp049, RoleType.Scp079
             , RoleType.Scp096, RoleType.Scp0492, RoleType.Scp93953, RoleType.Scp93989 };
 
-        public KillCounterUtility(Player killer, Main instance)
+        public KillCounterUtility(Main instance)
         {
 
             killsAsRole = new Dictionary<RoleType, KillsPerType>();

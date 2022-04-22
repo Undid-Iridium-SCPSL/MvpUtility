@@ -55,6 +55,7 @@ namespace MvpUtility
             ServerEvents.RoundStarted += mvpStatsMonitor.OnStart;
 
             ServerEvents.RoundEnded += mvpStatsMonitor.OnRoundEnd;
+            PlayerEvents.FailingEscapePocketDimension += mvpStatsMonitor.OnDimensionDeath;
 
             base.OnEnabled();
         }
@@ -71,7 +72,7 @@ namespace MvpUtility
             PlayerEvents.Escaping -= mvpStatsMonitor.OnEscape;
             ServerEvents.RoundStarted -= mvpStatsMonitor.OnStart;
             PlayerEvents.Dying -= mvpStatsMonitor.OnDying;
-
+            PlayerEvents.FailingEscapePocketDimension -= mvpStatsMonitor.OnDimensionDeath;
             ServerEvents.RoundEnded -= mvpStatsMonitor.OnRoundEnd;
 
             Instance = null;
