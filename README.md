@@ -49,4 +49,4 @@ mvp_utility:
     show_least_kills_human: false
  ```
  
-![image](https://user-images.githubusercontent.com/24619207/164560059-86400e47-20e9-4e5c-bb8d-c95071677834.png)
+![paintdotnet_V4jZ6KywZM](https://user-images.githubusercontent.com/24619207/164623340-95b71ddf-d494-4e21-860d-3a010a35264e.png)
