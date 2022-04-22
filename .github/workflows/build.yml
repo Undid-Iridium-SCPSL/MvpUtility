@@ -4,6 +4,9 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        dotnet-version: ['4.7.x', '5.0.x' ]
     steps:
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v1.5.0
