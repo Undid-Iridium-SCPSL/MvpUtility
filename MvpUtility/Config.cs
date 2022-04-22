@@ -42,6 +42,7 @@ namespace MvpUtility
             [Description("Whether to show who killed the least humans as human")]
             public bool showLeastKillsHuman { get; set; } = false;
 
+
         }
 
         [Description("Control over what types to show")]
