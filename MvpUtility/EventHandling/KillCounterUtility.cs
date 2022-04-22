@@ -12,6 +12,13 @@ namespace MvpUtility.EventHandling
 
         //public int killsAgainstHumans { get => killsAgainstHumans; set => killsAgainstHumans = value; }
 
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PickupChecker"/> class.
+        /// </summary>
+        /// <param name="plugin">An instance of the <see cref="Plugin"/> class.</param>
+        Main plugin { get; set; }
+
         public int totalKills { get; set; }
 
         private Dictionary<RoleType, KillsPerType> killsAsRole;
@@ -23,10 +30,11 @@ namespace MvpUtility.EventHandling
         public static List<RoleType> allPossibleScps = new List<RoleType>() {  RoleType.Scp173, RoleType.Scp106, RoleType.Scp049, RoleType.Scp079
             , RoleType.Scp096, RoleType.Scp0492, RoleType.Scp93953, RoleType.Scp93989 };
 
-        public KillCounterUtility(Player killer)
+        public KillCounterUtility(Player killer, Main instance)
         {
 
             killsAsRole = new Dictionary<RoleType, KillsPerType>();
+            plugin = instance;
         }
 
 
@@ -51,8 +59,10 @@ namespace MvpUtility.EventHandling
             if (!killsAsRole.TryGetValue(killer.Role, out KillsPerType killPerType))
             {
                 killPerType = new KillsPerType();
+                Log.Debug("We are adding killer to role ", plugin.Config.enableDebug);
                 killsAsRole.Add(killer.Role, killPerType);
             }
+            Log.Debug($"We are parsing type {killer.Role}", plugin.Config.enableDebug);
             killPerType.parseTargetType(target);
 
         }
@@ -90,10 +100,11 @@ namespace MvpUtility.EventHandling
                 {
                     continue;
                 }
-                if (bestKillsPerTeam < killPerType.totalKillsPerRole(teamToParse[pos]))
+                Log.Debug($"We are parsing team with {teamToParse[pos]} and this was output {killPerType.totalKillsForMyRole()} ", plugin.Config.enableDebug);
+                if (bestKillsPerTeam < killPerType.totalKillsForMyRole())
                 {
                     currentBestRole = teamToParse[pos];
-                    bestKillsPerTeam = killPerType.totalKillsPerRole(teamToParse[pos]);
+                    bestKillsPerTeam = killPerType.totalKillsForMyRole();
                 }
             }
             return Tuple.Create(currentBestRole, bestKillsPerTeam);
@@ -120,7 +131,7 @@ namespace MvpUtility.EventHandling
             {
                 return null;
             }
-            return killPerType.calculateHighestKillsInAllRoles();
+            return killPerType.calculateHighestKillsInRole();
         }
 
         public Tuple<RoleType, int> calculateWorstRole(RoleType playerRole)
@@ -143,7 +154,7 @@ namespace MvpUtility.EventHandling
             Tuple<RoleType, int> currentBestRole = Tuple.Create(RoleType.None, int.MaxValue);
             foreach (KeyValuePair<RoleType, KillsPerType> pairedData in killsAsRole)
             {
-                Tuple<RoleType, int> currentBestRoleCalc = pairedData.Value.calculateHighestKillsInAllRoles();
+                Tuple<RoleType, int> currentBestRoleCalc = pairedData.Value.calculateHighestKillsInRole();
                 if (currentBestRoleCalc.Item2 < currentBestRole.Item2)
                 {
                     currentBestRole = currentBestRoleCalc;
@@ -151,6 +162,49 @@ namespace MvpUtility.EventHandling
             }
             return currentBestRole;
         }
+
+        /// <summary>
+        /// Iterates over every role a person was, and determines the best played one in terms of kills
+        /// </summary>
+        /// <returns> <see cref="Tuple"/> </returns>
+        public Tuple<RoleType, int> getBestHumanToHuman()
+        {
+            Tuple<RoleType, int> currentBestRole = Tuple.Create(RoleType.None, int.MaxValue);
+            Log.Debug($"What is the human dict {killsAsRole.Count}", plugin.Config.enableDebug);
+            foreach (KeyValuePair<RoleType, KillsPerType> pairedData in killsAsRole)
+            {
+                if (!isScp(pairedData.Key))
+                {
+                    Tuple<RoleType, int> currentBestRoleCalc = pairedData.Value.calculateHighestKillsInRole();
+                    if (currentBestRoleCalc.Item2 < currentBestRole.Item2)
+                    {
+                        currentBestRole = currentBestRoleCalc;
+                    }
+                }
+
+            }
+            return currentBestRole;
+        }
+
+        private bool isScp(RoleType currentRole)
+        {
+            switch (currentRole)
+            {
+                case RoleType.Scp049:
+                case RoleType.Scp0492:
+                case RoleType.Scp079:
+                case RoleType.Scp096:
+                case RoleType.Scp106:
+                case RoleType.Scp173:
+                case RoleType.Scp93953:
+                case RoleType.Scp93989:
+                    return true;
+                default:
+                    return false;
+            }
+
+        }
+
 
 
         /// <summary>
@@ -202,10 +256,22 @@ namespace MvpUtility.EventHandling
 
         public int totalKillsPerRole(RoleType role)
         {
-            return targetTypedKilled.TryGetValue(role, out int value) ? value : int.MinValue;
+            targetTypedKilled.TryGetValue(role, out int value);
+            return value;
+        }
+        public int totalKillsForMyRole()
+        {
+            int value = 0;
+
+            foreach (KeyValuePair<RoleType, int> pairedData in targetTypedKilled)
+            {
+                value += pairedData.Value;
+            }
+
+            return value;
         }
 
-        public Tuple<RoleType, int> calculateHighestKillsInAllRoles()
+        public Tuple<RoleType, int> calculateHighestKillsInRole()
         {
             killsPerRoleCalculator();
             return highestKillRoleCount;

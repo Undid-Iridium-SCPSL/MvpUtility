@@ -31,7 +31,7 @@ namespace MvpUtility.EventHandling
 
         public void OnEscape(EscapingEventArgs ev)
         {
-            firstPlayerEscape = Tuple.Create(ev.Player.Nickname, roundStartTime - Time.time);
+            firstPlayerEscape = Tuple.Create(ev.Player.Nickname, Time.time - roundStartTime);
         }
 
         public void OnStart()
@@ -43,7 +43,15 @@ namespace MvpUtility.EventHandling
         {
 
             // Try to add new killer, and then parse their behavior types
-            mostKillsPlayer.TryAdd(ev.Killer.Nickname, new KillCounterUtility(ev.Killer));
+            if (ev.Killer == null)
+            {
+                return;
+            }
+            if (ev.Killer.Nickname == null)
+            {
+                return;
+            }
+            mostKillsPlayer.TryAdd(ev.Killer.Nickname, new KillCounterUtility(ev.Killer, plugin));
             mostKillsPlayer[ev.Killer.Nickname].parseKillerStats(ev.Killer, ev.Target);
 
             //Either just do this directly or give a queue this data for a thread, so we can offload logic to threads
@@ -69,7 +77,7 @@ namespace MvpUtility.EventHandling
             {
                 if (firstPlayerEscape != null)
                 {
-                    outputList.Add($"<align=center><color=#247BA0> {firstPlayerEscape.Item1} </color> was the first person to escape </align> \n");
+                    outputList.Add($"<align=center><color=#247BA0> {firstPlayerEscape.Item1} </color> was the first person to escape within {TimeSpan.FromSeconds(firstPlayerEscape.Item2).ToString(@"mm\:ss\:fff")}'s </align> \n");
                 }
             }
             Log.Debug("RoundEnd2", plugin.Config.enableDebug);
@@ -149,7 +157,7 @@ namespace MvpUtility.EventHandling
                 }
                 if (plugin.Config.roundEndBehaviors.showMostKillsHumanOnHuman)
                 {
-                    handleBestPlayer(ref possibleOutcomes, killerPairedData.Value.getBestRole(), killerPairedData.Key, 1);
+                    handleBestPlayer(ref possibleOutcomes, killerPairedData.Value.getBestHumanToHuman(), killerPairedData.Key, 1);
                 }
                 if (plugin.Config.roundEndBehaviors.showMostKillsKiller)
                 {
@@ -176,7 +184,7 @@ namespace MvpUtility.EventHandling
 
             if (plugin.Config.roundEndBehaviors.showLeastKillsHuman)
             {
-                if (possibleOutcomes[0].Item2 != RoleType.None)
+                if (possibleOutcomes[0].Item3 != int.MaxValue)
                 {
                     outputList.Add($"<align=center><color=#F6511D> {possibleOutcomes[0].Item1} </color>" +
                   $" killed {possibleOutcomes[0].Item3} people, how sad. </align> \n");
@@ -186,15 +194,15 @@ namespace MvpUtility.EventHandling
             }
             if (plugin.Config.roundEndBehaviors.showMostKillsHumanOnHuman)
             {
-                if (possibleOutcomes[1].Item2 != RoleType.None)
+                if (possibleOutcomes[1].Item3 != int.MaxValue && possibleOutcomes[1].Item3 != int.MinValue)
                 {
                     outputList.Add($"<align=center><color=#241623> {possibleOutcomes[1].Item1} </color>" +
-               $" killed {possibleOutcomes[1].Item3} people as a human. </align> \n");
+               $" killed {possibleOutcomes[1].Item3} person as a human. </align> \n");
                 }
             }
             if (plugin.Config.roundEndBehaviors.showMostKillsKiller)
             {
-                if (possibleOutcomes[2].Item2 != RoleType.None)
+                if (possibleOutcomes[2].Item3 != int.MinValue)
                 {
                     outputList.Add($"<align=center><color=#D0CD94> {possibleOutcomes[2].Item1} </color>" +
                $" killed {possibleOutcomes[2].Item3} entities. </align> \n");
@@ -203,7 +211,7 @@ namespace MvpUtility.EventHandling
             }
             if (plugin.Config.roundEndBehaviors.showMostKillsMtfTeam)
             {
-                if (possibleOutcomes[3].Item2 != RoleType.None)
+                if (possibleOutcomes[3].Item3 != int.MinValue)
                 {
                     outputList.Add($"<align=center><color=#3C787E> {possibleOutcomes[3].Item1} </color>" +
                 $" killed {possibleOutcomes[3].Item3} people as {possibleOutcomes[3].Item2} (MTF). </align> \n");
@@ -213,7 +221,7 @@ namespace MvpUtility.EventHandling
 
             if (plugin.Config.roundEndBehaviors.showMostKillsChaosTeam)
             {
-                if (possibleOutcomes[4].Item2 != RoleType.None)
+                if (possibleOutcomes[4].Item3 != int.MinValue)
                 {
                     outputList.Add($"<align=center><color=#C7EF00> {possibleOutcomes[4].Item1} </color>" +
                 $" killed {possibleOutcomes[4].Item3} people as {possibleOutcomes[4].Item2} (Chaos). </align> \n");
@@ -222,7 +230,7 @@ namespace MvpUtility.EventHandling
 
             if (plugin.Config.roundEndBehaviors.showMostKillsScpTeam)
             {
-                if (possibleOutcomes[5].Item2 != RoleType.None)
+                if (possibleOutcomes[5].Item3 != int.MinValue)
                 {
                     outputList.Add($"<align=center><color=#D56F3E> {possibleOutcomes[5].Item1} </color>" +
                 $" killed {possibleOutcomes[5].Item3} people as {possibleOutcomes[5].Item2} (SCP). </align> \n");
