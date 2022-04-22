@@ -121,13 +121,7 @@ namespace MvpUtility.EventHandling
             List<String> outputList = new List<String>();
             // The following segments of code is the best I can come up without reflection usage
 
-            if (plugin.Config.roundEndBehaviors.showFirstEscape)
-            {
-                if (firstPlayerEscape != null)
-                {
-                    outputList.Add($"<align=center><color=#247BA0> {firstPlayerEscape.Item1} </color> was the first person to escape within {TimeSpan.FromSeconds(firstPlayerEscape.Item2).ToString(@"mm\:ss\:fff")}'s </align> \n");
-                }
-            }
+
             // Generates our strings we will use based on config. 
             handlePossibleOutputs(ref outputList);
 
@@ -187,7 +181,7 @@ namespace MvpUtility.EventHandling
             foreach (Player player in Player.List)
             {
                 // String.Join(' ', choices.ToArray()) also works but no, why bother to slow it down. It's always 3. Unless that changes. 
-                player.ShowHint($"{new string('\n', 15)} " + choices[0] + choices[1] + choices[2], 10);
+                player.ShowHint($"{choices[0] + choices[1] + choices[2]}", 10);
             }
         }
 
@@ -201,6 +195,22 @@ namespace MvpUtility.EventHandling
         private void handlePossibleOutputs(ref List<string> outputList)
         {
 
+            if (plugin.Config.roundEndBehaviors.showFirstEscape.TryGetValue(true, out string customString))
+            {
+                if (firstPlayerEscape != null)
+                {
+                    customString = customString ?? string.Empty;
+                    if (customString.Equals(string.Empty))
+                    {
+                        outputList.Add($"<line-height=75%><voffset=30em><align=center><color=#247BA0> {firstPlayerEscape.Item1} </color> was the first person to escape within {TimeSpan.FromSeconds(firstPlayerEscape.Item2).ToString(@"mm\:ss\:fff")}'s </align> </voffset> \n");
+                    }
+                    else
+                    {
+                        outputList.Add(string.Format(customString, firstPlayerEscape.Item1, firstPlayerEscape.Item2));
+                    }
+                }
+            }
+
             List<Tuple<String, RoleType, int>> possibleOutcomes = new List<Tuple<String, RoleType, int>>(){
                 Tuple.Create("", RoleType.None, int.MaxValue ), // Worst player
                 Tuple.Create("", RoleType.None, int.MinValue ), // Best player (Most kills human on human)
@@ -212,29 +222,29 @@ namespace MvpUtility.EventHandling
 
             foreach (KeyValuePair<String, KillCounterUtility> killerPairedData in mostKillsPlayer)
             {
-                if (plugin.Config.roundEndBehaviors.showLeastKillsHuman)
+                if (plugin.Config.roundEndBehaviors.showLeastKillsHuman.ContainsKey(true))
                 {
                     // Preallocated position of 0, only way I could think to solve without multi-for loops (Same for the rest)
                     handleWorstPlayer(ref possibleOutcomes, killerPairedData.Value.getWorstRole(), killerPairedData.Key, 0);
                 }
-                if (plugin.Config.roundEndBehaviors.showMostKillsHumanOnHuman)
+                if (plugin.Config.roundEndBehaviors.showMostKillsHumanOnHuman.ContainsKey(true))
                 {
                     handleBestPlayer(ref possibleOutcomes, killerPairedData.Value.getBestHumanToHuman(), killerPairedData.Key, 1);
                 }
-                if (plugin.Config.roundEndBehaviors.showMostKillsKiller)
+                if (plugin.Config.roundEndBehaviors.showMostKillsKiller.ContainsKey(true))
                 {
                     handleBestPlayer(ref possibleOutcomes, killerPairedData.Value.getBestKiller(), killerPairedData.Key, 2);
                 }
-                if (plugin.Config.roundEndBehaviors.showMostKillsMtfTeam)
+                if (plugin.Config.roundEndBehaviors.showMostKillsMtfTeam.ContainsKey(true))
                 {
                     handleBestPlayer(ref possibleOutcomes, killerPairedData.Value.getBestKillsPerTeam(Team.MTF), killerPairedData.Key, 3);
                 }
 
-                if (plugin.Config.roundEndBehaviors.showMostKillsChaosTeam)
+                if (plugin.Config.roundEndBehaviors.showMostKillsChaosTeam.ContainsKey(true))
                 {
                     handleBestPlayer(ref possibleOutcomes, killerPairedData.Value.getBestKillsPerTeam(Team.CHI), killerPairedData.Key, 4);
                 }
-                if (plugin.Config.roundEndBehaviors.showMostKillsScpTeam)
+                if (plugin.Config.roundEndBehaviors.showMostKillsScpTeam.ContainsKey(true))
                 {
                     handleBestPlayer(ref possibleOutcomes, killerPairedData.Value.getBestKillsPerTeam(Team.SCP), killerPairedData.Key, 5);
                 }
@@ -243,59 +253,83 @@ namespace MvpUtility.EventHandling
             // Alternative is a for loop but the problem is if I do if if, I run same logic, if I do else if, I run into skipping 
             // because the first if, or nth will always be called
 
-            if (plugin.Config.roundEndBehaviors.showLeastKillsHuman)
+            if (plugin.Config.roundEndBehaviors.showLeastKillsHuman.ContainsKey(true))
             {
                 if (possibleOutcomes[0].Item3 != int.MaxValue)
                 {
-                    outputList.Add($"<align=center><color=#F6511D> {possibleOutcomes[0].Item1} </color>" +
-                  $" had {possibleOutcomes[0].Item3} kills, how sad. </align> \n");
+                    customString = plugin.Config.roundEndBehaviors.showLeastKillsHuman[true] ?? string.Empty;
+                    generateString(ref outputList, possibleOutcomes, customString,
+                        $"<line-height=75%><voffset=30em><align=center><color=#F6511D> {possibleOutcomes[0].Item1} </color> had {possibleOutcomes[0].Item3} kills, how sad. </align> </voffset> \n");
                 }
             }
-            if (plugin.Config.roundEndBehaviors.showMostKillsHumanOnHuman)
+            if (plugin.Config.roundEndBehaviors.showMostKillsHumanOnHuman.ContainsKey(true))
             {
                 if (possibleOutcomes[1].Item3 != int.MaxValue && possibleOutcomes[1].Item3 != int.MinValue)
                 {
-                    outputList.Add($"<align=center><color=#241623> {possibleOutcomes[1].Item1} </color>" +
-               $" had {possibleOutcomes[1].Item3} kills as a lonely human. </align> \n");
+                    customString = plugin.Config.roundEndBehaviors.showMostKillsHumanOnHuman[true] ?? string.Empty;
+                    generateString(ref outputList, possibleOutcomes, customString,
+                        $"<line-height=75%><voffset=30em><align=center><color=#241623> {possibleOutcomes[1].Item1} </color>" +
+                        $" had {possibleOutcomes[1].Item3} kills as a lonely human. </align> </voffset> \n");
                 }
             }
-            if (plugin.Config.roundEndBehaviors.showMostKillsKiller)
+            if (plugin.Config.roundEndBehaviors.showMostKillsKiller.ContainsKey(true))
             {
                 if (possibleOutcomes[2].Item3 != int.MinValue)
                 {
-                    outputList.Add($"<align=center><color=#D0CD94> {possibleOutcomes[2].Item1} </color>" +
-               $" had killed {possibleOutcomes[2].Item3} entities. </align> \n");
+                    customString = plugin.Config.roundEndBehaviors.showMostKillsKiller[true] ?? string.Empty;
+                    generateString(ref outputList, possibleOutcomes, customString,
+                        $"<line-height=75%><voffset=30em><align=center><color=#D0CD94> {possibleOutcomes[2].Item1} </color>" +
+                        $" had killed {possibleOutcomes[2].Item3} entities. </align> </voffset> \n");
                 }
 
             }
-            if (plugin.Config.roundEndBehaviors.showMostKillsMtfTeam)
+            if (plugin.Config.roundEndBehaviors.showMostKillsMtfTeam.ContainsKey(true))
             {
                 if (possibleOutcomes[3].Item3 != int.MinValue)
                 {
-                    outputList.Add($"<align=center><color=#3C787E> {possibleOutcomes[3].Item1} </color>" +
-                $" had {possibleOutcomes[3].Item3} kills as {possibleOutcomes[3].Item2} (MTF). </align> \n");
+                    customString = plugin.Config.roundEndBehaviors.showMostKillsMtfTeam[true] ?? string.Empty;
+                    generateString(ref outputList, possibleOutcomes, customString,
+                        $"<line-height=75%><voffset=30em><align=center><color=#3C787E> {possibleOutcomes[3].Item1} </color>" +
+                        $" had {possibleOutcomes[3].Item3} kills as {possibleOutcomes[3].Item2} (MTF). </align> </voffset> \n");
                 }
 
             }
 
-            if (plugin.Config.roundEndBehaviors.showMostKillsChaosTeam)
+            if (plugin.Config.roundEndBehaviors.showMostKillsChaosTeam.ContainsKey(true))
             {
                 if (possibleOutcomes[4].Item3 != int.MinValue)
                 {
-                    outputList.Add($"<align=center><color=#C7EF00> {possibleOutcomes[4].Item1} </color>" +
-                $" had {possibleOutcomes[4].Item3} kills as {possibleOutcomes[4].Item2} (Chaos). </align> \n");
+                    customString = plugin.Config.roundEndBehaviors.showMostKillsChaosTeam[true] ?? string.Empty;
+                    generateString(ref outputList, possibleOutcomes, customString,
+                        $"<line-height=75%><voffset=30em><align=center><color=#C7EF00> {possibleOutcomes[4].Item1} </color>" +
+                        $" had {possibleOutcomes[4].Item3} kills as {possibleOutcomes[4].Item2} (Chaos). </align> </voffset> \n");
                 }
             }
 
-            if (plugin.Config.roundEndBehaviors.showMostKillsScpTeam)
+            if (plugin.Config.roundEndBehaviors.showMostKillsScpTeam.ContainsKey(true))
             {
                 if (possibleOutcomes[5].Item3 != int.MinValue)
                 {
-                    outputList.Add($"<align=center><color=#D56F3E> {possibleOutcomes[5].Item1} </color>" +
-                $" had {possibleOutcomes[5].Item3} kills as {possibleOutcomes[5].Item2} (SCP). </align> \n");
+                    customString = plugin.Config.roundEndBehaviors.showMostKillsScpTeam[true] ?? string.Empty;
+                    generateString(ref outputList, possibleOutcomes, customString,
+                            $"<line-height=75%><voffset=30em><align=center><color=#D56F3E> {possibleOutcomes[5].Item1} </color>" +
+                $" had {possibleOutcomes[5].Item3} kills as {possibleOutcomes[5].Item2} (SCP). </align> </voffset> \n");
                 }
             }
-            Log.Debug("handlePossibleOutputs4", plugin.Config.enableDebug);
+        }
+
+        private void generateString(ref List<string> outputList, List<Tuple<string, RoleType, int>> possibleOutcomes, String configValue, String defaultValue)
+        {
+
+            if (configValue.Equals(string.Empty))
+            {
+                outputList.Add(defaultValue);
+            }
+            else
+            {
+                outputList.Add(string.Format(configValue, possibleOutcomes[0].Item1, possibleOutcomes[1].Item2, possibleOutcomes[1].Item3));
+            }
+
         }
 
         private void handleBestPlayer(ref List<Tuple<string, RoleType, int>> possibleOutcomes, Tuple<RoleType, int> bestRoleCalc, string killerPairedDataName, int outcomePosition)
