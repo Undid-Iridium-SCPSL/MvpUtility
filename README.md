@@ -34,34 +34,34 @@ mvp_utility:
   round_end_behaviors:
   # Control over what types to show, whether its first come or random per round
     random_outputs: true
-    # Whether to show first player escape
+    # Whether to show first player escape, only takes two params
     show_first_escape:
       true: >
         <line-height=75%><voffset=30em><align=center><color=#247BA0> {0} </color> was the first person to escape within {1}'s </align> </voffset>
-    # Whether to show who killed the most entities
+    # Whether to show who killed the most entities, only takes three params
     show_most_kills_killer:
       true: >
-        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills as {1} </align> </voffset> 
-    # Whether to show who killed the most humans as SCP on team
+        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills (Any) </align> </voffset> 
+    # Whether to show who killed the most humans as SCP on team, only takes three params
     show_most_kills_scp_team:
       true: >
-        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills as {1} </align> </voffset> 
-    # Whether to show who killed the most humans as MTF on team
+        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills as {1} (SCP) </align> </voffset> 
+    # Whether to show who killed the most humans as MTF on team, only takes three params
     show_most_kills_mtf_team:
       true: >
-        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills as {1} </align> </voffset> 
-    # Whether to show who killed the most humans as CHAOS on team
+        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills as {1} (MTF) </align> </voffset> 
+    # Whether to show who killed the most humans as CHAOS on team, only takes three params
     show_most_kills_chaos_team:
       true: >
-        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills as {1} </align> </voffset> 
-    # Whether to show who killed the most humans as human
+        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills as {1} (Chaos) </align> </voffset> 
+    # Whether to show who killed the most humans as human, only takes three params
     show_most_kills_human_on_human:
       true: >
-        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills as {1} </align> </voffset> 
-    # Whether to show who killed the least humans as human
+        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills as {1} (Human) </align> </voffset> 
+    # Whether to show who killed the least humans as human, only takes three params
     show_least_kills_human:
       false: >
-        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills, how sad as {1} </align> </voffset> 
+        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills, how sad as {1} (Human)</align> </voffset> 
   # How often to check for Scp106
   check_interval: 10
   # Whether to track suicides or not.
