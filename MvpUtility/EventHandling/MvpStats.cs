@@ -292,7 +292,6 @@ namespace MvpUtility.EventHandling
                     generateString(ref outputList, possibleOutcomes, customString,
                         $"<line-height=75%><voffset=30em><align=center><color=#D0CD94> {possibleOutcomes[2].Item1} </color>" +
                         $" had killed {possibleOutcomes[2].Item3} entities. </align> </voffset> \n", 2);
-                    Log.Info($"What was show most killer killer {outputList[outputList.Count - 1]}");
                 }
 
             }
