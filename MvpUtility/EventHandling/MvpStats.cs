@@ -154,7 +154,7 @@ namespace MvpUtility.EventHandling
                     choices = outputList;
                     while (choices.Count != 3)
                     {
-                        choices.Add("");
+                        choices.Add(string.Empty);
                     }
                 }
             }
@@ -169,7 +169,7 @@ namespace MvpUtility.EventHandling
                 // If in some case we don't have 3 available, dummy ones get added. 
                 while (choices.Count != 3)
                 {
-                    choices.Add("");
+                    choices.Add(string.Empty);
                 }
             }
 
@@ -272,12 +272,14 @@ namespace MvpUtility.EventHandling
             }
             if (plugin.Config.RoundEndBehaviors.ShowMostKillsKiller.ContainsKey(true))
             {
-                if (possibleOutcomes[2].Item2 != RoleType.None)
+                if (!possibleOutcomes[2].Item1.Equals(string.Empty) && possibleOutcomes[2].Item3 > 0)
                 {
                     customString = plugin.Config.RoundEndBehaviors.ShowMostKillsKiller[true] ?? string.Empty;
+
                     generateString(ref outputList, possibleOutcomes, customString,
                         $"<line-height=75%><voffset=30em><align=center><color=#D0CD94> {possibleOutcomes[2].Item1} </color>" +
                         $" had killed {possibleOutcomes[2].Item3} entities. </align> </voffset> \n", 2);
+                    Log.Info($"What was show most killer killer {outputList[outputList.Count - 1]}");
                 }
 
             }
