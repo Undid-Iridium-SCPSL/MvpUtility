@@ -18,9 +18,9 @@ namespace MvpUtility.EventHandling
         /// <param name="plugin">An instance of the <see cref="Plugin"/> class.</param>
         public MvpStats(Main plugin) => this.plugin = plugin;
 
-        internal Dictionary<String, KillCounterUtility> listOfPlayersKillStats;
+        internal Dictionary<string, KillCounterUtility> listOfPlayersKillStats;
 
-        public Tuple<String, float> firstPlayerEscape;
+        public Tuple<string, float> firstPlayerEscape { get; set; } = null;
 
         public int recheckCounter { get; set; }
 
@@ -31,9 +31,10 @@ namespace MvpUtility.EventHandling
         internal void roundStarted(float time)
         {
             roundStartTime = time;
-            listOfPlayersKillStats = new Dictionary<String, KillCounterUtility>();
+            listOfPlayersKillStats = new Dictionary<string, KillCounterUtility>();
             recheckCounter = 0;
             Scp106ValidatorCoroutine = Timing.RunCoroutine(checkLast106());
+            firstPlayerEscape = null;
         }
 
         private IEnumerator<float> checkLast106()
@@ -54,7 +55,10 @@ namespace MvpUtility.EventHandling
 
         public void OnEscape(EscapingEventArgs ev)
         {
-            firstPlayerEscape = Tuple.Create(ev.Player.Nickname, Time.time - roundStartTime);
+            if (firstPlayerEscape == null)
+            {
+                firstPlayerEscape = Tuple.Create(ev.Player.Nickname, Time.time - roundStartTime);
+            }
         }
 
         public void OnStart()
@@ -118,7 +122,7 @@ namespace MvpUtility.EventHandling
         /// <param name="ev"></param>
         internal void OnRoundEnd(RoundEndedEventArgs ev)
         {
-            List<String> outputList = new List<String>();
+            List<string> outputList = new List<string>();
             // The following segments of code is the best I can come up without reflection usage
 
 
@@ -173,7 +177,7 @@ namespace MvpUtility.EventHandling
                 }
             }
 
-            String hintToShow = choices[0] + choices[1] + choices[2];
+            string hintToShow = choices[0] + choices[1] + choices[2];
             // Iterate every player and show the hints. 
             foreach (Player player in Player.List)
             {
@@ -207,7 +211,7 @@ namespace MvpUtility.EventHandling
                 }
             }
 
-            List<Tuple<String, RoleType, int>> possibleOutcomes = new List<Tuple<String, RoleType, int>>(){
+            List<Tuple<string, RoleType, int>> possibleOutcomes = new List<Tuple<string, RoleType, int>>(){
                 Tuple.Create(string.Empty, RoleType.None, int.MaxValue ), // Worst player
                 Tuple.Create(string.Empty, RoleType.None, int.MinValue ), // Best player (Most kills human on human)
                 Tuple.Create(string.Empty, RoleType.None, int.MinValue ), // Best player (Killer in general, all entities)
@@ -216,7 +220,7 @@ namespace MvpUtility.EventHandling
                 Tuple.Create(string.Empty, RoleType.None, int.MinValue ), // Best player (Best per ScpTeam)
             };
 
-            foreach (KeyValuePair<String, KillCounterUtility> killerPairedData in listOfPlayersKillStats)
+            foreach (KeyValuePair<string, KillCounterUtility> killerPairedData in listOfPlayersKillStats)
             {
                 if (plugin.Config.RoundEndBehaviors.ShowLeastKillsHuman.ContainsKey(true))
                 {
@@ -325,7 +329,7 @@ namespace MvpUtility.EventHandling
         /// <param name="configValue"></param>
         /// <param name="defaultValue"></param>
         /// <param name="pos"></param>
-        private void generateString(ref List<string> outputList, List<Tuple<string, RoleType, int>> possibleOutcomes, String configValue, String defaultValue, int pos)
+        private void generateString(ref List<string> outputList, List<Tuple<string, RoleType, int>> possibleOutcomes, string configValue, string defaultValue, int pos)
         {
 
             if (configValue.Equals(string.Empty))
