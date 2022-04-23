@@ -99,6 +99,13 @@
             /// </summary>
             [Description("Whether to show who killed the least humans as human, only takes three params")]
             public Dictionary<bool, string> ShowLeastKillsHuman { get; set; } = new Dictionary<bool, string> { { false, string.Empty } };
+
+
+            /// <summary>
+            /// Gets or sets whether to show what to default to.
+            /// </summary>
+            [Description("Default output if no one escapes (No params)")]
+            public Dictionary<bool, string> NoEscapeString { get; set; } = new Dictionary<bool, string> { { false, string.Empty } };
         }
     }
 }
