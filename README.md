@@ -36,31 +36,31 @@ mvp_utility:
     random_outputs: true
     # Whether to show first player escape
     show_first_escape:
-      true: <line-height=75%><voffset=30em><align=center><color=#247BA0> {0} </color> was the first person to escape within {1}'s {2} </align> </voffset>
+      true: <line-height=75%><voffset=30em><align=center><color=#247BA0> {0} </color> was the first person to escape within {1}'s </align> </voffset>
     # Whether to show who killed the most entities
     show_most_kills_killer:
       true: >
-        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills, show_most_kills_killer. {1} </align> </voffset> 
+        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills as {1} </align> </voffset> 
     # Whether to show who killed the most humans as SCP on team
     show_most_kills_scp_team:
       true: >
-        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills, show_most_kills_scp_team. {1} </align> </voffset> 
+        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} killsas {1} </align> </voffset> 
     # Whether to show who killed the most humans as MTF on team
     show_most_kills_mtf_team:
       true: >
-        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills, show_most_kills_mtf_team. {1} </align> </voffset> 
+        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills as {1} </align> </voffset> 
     # Whether to show who killed the most humans as CHAOS on team
     show_most_kills_chaos_team:
       true: >
-        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills, show_most_kills_chaos_team. {1} </align> </voffset> 
+        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills as {1} </align> </voffset> 
     # Whether to show who killed the most humans as human
     show_most_kills_human_on_human:
       true: >
-        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills, show_most_kills_human_on_human. {1} </align> </voffset> 
+        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills as {1} </align> </voffset> 
     # Whether to show who killed the least humans as human
     show_least_kills_human:
       false: >
-        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills, how sad. {1} </align> </voffset>
+        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills, how sad as {1} </align> </voffset> 
   # How often to check for Scp106
   check_interval: 10
   # Whether to track suicides or not.
