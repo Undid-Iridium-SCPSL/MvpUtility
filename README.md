@@ -45,7 +45,7 @@ mvp_utility:
     # Whether to show who killed the most humans as SCP on team
     show_most_kills_scp_team:
       true: >
-        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} killsas {1} </align> </voffset> 
+        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills as {1} </align> </voffset> 
     # Whether to show who killed the most humans as MTF on team
     show_most_kills_mtf_team:
       true: >
