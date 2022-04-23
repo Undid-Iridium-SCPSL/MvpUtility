@@ -20,7 +20,9 @@ namespace MvpUtility.EventHandling
 
         internal Dictionary<string, KillCounterUtility> listOfPlayersKillStats;
 
+
         public Tuple<string, float> firstPlayerEscape { get; set; } = null;
+
 
         public int recheckCounter { get; set; }
 
@@ -72,6 +74,7 @@ namespace MvpUtility.EventHandling
 
             try
             {
+
                 if (ev.Target.Role is Exiled.API.Features.Roles.Scp106Role)
                 {
                     lastKnown106 = null;
@@ -92,6 +95,12 @@ namespace MvpUtility.EventHandling
                     return;
                 }
                 if (ev.Killer.Nickname == null)
+                {
+                    return;
+                }
+
+                // Do not allow suicides (Add config)
+                if (ev.Killer == ev.Target && !plugin.Config.TrackSuicides)
                 {
                     return;
                 }
