@@ -1,6 +1,6 @@
 # MvpUtility
 
-I need to go shopping. However, this is a plugin to show MVP stats at the end of the round. It's barebones but it was what I could accomplish today thus far. Thanks, any bugs should be expected but hopefully none. 
+This plugin basically offers some MVP stats at the end of the round, and you can modify these strings or leave them as blank so defaults will run. This type of text formatting is dependent on http://digitalnativestudios.com/textmeshpro/docs/rich-text/#line-height so if you want it on the bottom you will have to adhere to the richtext rules. Also at this time formatting requires all 3 variables (Name, RoleType, Counter) to be specified. I may if requested make it dynamic where you can reject or rather ignore some of them (such as putting {0} {2} and if I don't see {1} not to put it) but that will be by request. 
 
 ![MvpUtility ISSUES](https://img.shields.io/github/issues/Undid-Iridium/MvpUtility)
 ![MvpUtility FORKS](https://img.shields.io/github/forks/Undid-Iridium/MvpUtility)
