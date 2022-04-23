@@ -36,7 +36,8 @@ mvp_utility:
     random_outputs: true
     # Whether to show first player escape
     show_first_escape:
-      true: <line-height=75%><voffset=30em><align=center><color=#247BA0> {0} </color> was the first person to escape within {1}'s </align> </voffset>
+      true: >
+        <line-height=75%><voffset=30em><align=center><color=#247BA0> {0} </color> was the first person to escape within {1}'s </align> </voffset>
     # Whether to show who killed the most entities
     show_most_kills_killer:
       true: >
