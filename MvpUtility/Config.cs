@@ -9,6 +9,8 @@
     /// </summary>
     public class Config : IConfig
     {
+
+
         /// <inheritdoc />
         public bool IsEnabled { get; set; } = true;
 
@@ -29,6 +31,12 @@
         /// </summary>
         [Description("How often to check for Scp106")]
         public float CheckInterval { get; set; } = 10f;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to track suicides
+        /// </summary>
+        [Description("Whether to track suicides or not.")]
+        public bool TrackSuicides { get; set; } = false;
 
         /// <summary>
         /// Gets or sets how long to display hint.
