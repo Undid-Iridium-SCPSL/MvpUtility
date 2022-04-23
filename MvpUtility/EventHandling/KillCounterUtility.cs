@@ -105,11 +105,11 @@
                 {
                     continue;
                 }
-                Log.Debug($"We are parsing team with {teamToParse[pos]} and this was output {killPerType.totalKillsForMyRole()} ", MvpPlugin.Config.EnableDebug);
-                if (bestKillsPerTeam < killPerType.totalKillsForMyRole())
+
+                if (bestKillsPerTeam < killPerType.totalKilled)
                 {
                     currentBestRole = teamToParse[pos];
-                    bestKillsPerTeam = killPerType.totalKillsForMyRole();
+                    bestKillsPerTeam = killPerType.totalKilled;
                 }
             }
             return Tuple.Create(currentBestRole, bestKillsPerTeam);
@@ -189,11 +189,11 @@
         /// <returns> <see cref="Tuple"/> </returns>
         public Tuple<RoleType, int> getBestRole()
         {
-            Tuple<RoleType, int> currentBestRole = Tuple.Create(RoleType.None, int.MaxValue);
+            Tuple<RoleType, int> currentBestRole = Tuple.Create(RoleType.None, int.MinValue);
             foreach (KeyValuePair<RoleType, KillsPerType> pairedData in killsAsRole)
             {
-                Tuple<RoleType, int> currentBestRoleCalc = pairedData.Value.calculateHighestKillsInRole();
-                if (currentBestRoleCalc.Item2 < currentBestRole.Item2)
+                Tuple<RoleType, int> currentBestRoleCalc = Tuple.Create(pairedData.Key, pairedData.Value.totalKilled);
+                if (currentBestRoleCalc.Item2 > currentBestRole.Item2)
                 {
                     currentBestRole = currentBestRoleCalc;
                 }
@@ -207,14 +207,14 @@
         /// <returns> <see cref="Tuple"/> </returns>
         public Tuple<RoleType, int> getBestHumanToHuman()
         {
-            Tuple<RoleType, int> currentBestRole = Tuple.Create(RoleType.None, int.MaxValue);
+            Tuple<RoleType, int> currentBestRole = Tuple.Create(RoleType.None, int.MinValue);
             Log.Debug($"What is the human dict {killsAsRole.Count}", MvpPlugin.Config.EnableDebug);
             foreach (KeyValuePair<RoleType, KillsPerType> pairedData in killsAsRole)
             {
                 if (!isScp(pairedData.Key))
                 {
-                    Tuple<RoleType, int> currentBestRoleCalc = pairedData.Value.calculateHighestKillsInRole();
-                    if (currentBestRoleCalc.Item2 < currentBestRole.Item2)
+                    Tuple<RoleType, int> currentBestRoleCalc = Tuple.Create(pairedData.Key, pairedData.Value.totalKilled);
+                    if (currentBestRoleCalc.Item2 > currentBestRole.Item2)
                     {
                         currentBestRole = currentBestRoleCalc;
                     }
@@ -251,18 +251,22 @@
         /// Iterates over every role a person was, and determines the worst played one in terms of kills
         /// </summary>
         /// <returns> <see cref="Tuple"/> </returns>
-        public Tuple<RoleType, int> getWorstRole()
+        public Tuple<RoleType, int> getWorstRoleHuman()
         {
             Tuple<RoleType, int> currentWorstRole = Tuple.Create(RoleType.None, int.MaxValue);
 
             foreach (KeyValuePair<RoleType, KillsPerType> pairedData in killsAsRole)
             {
-                Tuple<RoleType, int> currentWorstRoleCalc = pairedData.Value.calculateLowestKillsInAllRoles();
-                if (currentWorstRoleCalc.Item2 < currentWorstRole.Item2)
+                if (!isScp(pairedData.Key))
                 {
-                    currentWorstRole = currentWorstRoleCalc;
+                    if (pairedData.Value.totalKilled < currentWorstRole.Item2)
+                    {
+                        currentWorstRole = Tuple.Create(pairedData.Key, pairedData.Value.totalKilled);
+                    }
                 }
             }
+
+            Log.Debug($"What was our current worst role {currentWorstRole.Item1} and {currentWorstRole.Item2}", MvpPlugin.Config.EnableDebug);
             return currentWorstRole;
         }
 
@@ -356,6 +360,7 @@
             killsPerRoleCalculator();
             return lowestKillRoleCount;
         }
+
 
 
         /// <summary>

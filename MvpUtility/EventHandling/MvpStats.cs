@@ -24,7 +24,6 @@ namespace MvpUtility.EventHandling
         public Tuple<string, float> firstPlayerEscape { get; set; } = null;
 
 
-        public int recheckCounter { get; set; }
 
         private CoroutineHandle Scp106ValidatorCoroutine;
 
@@ -34,10 +33,10 @@ namespace MvpUtility.EventHandling
         {
             roundStartTime = time;
             listOfPlayersKillStats = new Dictionary<string, KillCounterUtility>();
-            recheckCounter = 0;
             Scp106ValidatorCoroutine = Timing.RunCoroutine(checkLast106());
             firstPlayerEscape = null;
         }
+
 
         private IEnumerator<float> checkLast106()
         {
@@ -87,6 +86,7 @@ namespace MvpUtility.EventHandling
                     {
                         listOfPlayersKillStats.TryAddKey(lastKnown106.Nickname, new KillCounterUtility(plugin));
                         listOfPlayersKillStats[lastKnown106.Nickname].parseKillerStats(lastKnown106, ev.Target);
+                        return;
                     }
                 }
                 // Try to add new killer, and then parse their behavior types
@@ -192,6 +192,21 @@ namespace MvpUtility.EventHandling
             {
                 player.ShowHint(hintToShow, plugin.Config.HintDisplayLimit);
             }
+
+            try
+            {
+                roundStartTime = 0;
+                listOfPlayersKillStats = null;
+                firstPlayerEscape = null;
+                if (Scp106ValidatorCoroutine.IsRunning)
+                {
+                    Timing.KillCoroutines(Scp106ValidatorCoroutine);
+                }
+            }
+            catch (Exception unableToClearFields)
+            {
+                Log.Debug($"Unable to clear fields for MvpStats {unableToClearFields}", plugin.Config.EnableDebug);
+            }
         }
 
 
@@ -218,6 +233,17 @@ namespace MvpUtility.EventHandling
                         outputList.Add(string.Format(customString, firstPlayerEscape.Item1, TimeSpan.FromSeconds(firstPlayerEscape.Item2).ToString(@"mm\:ss\:fff")));
                     }
                 }
+                else
+                {
+                    if (plugin.Config.RoundEndBehaviors.NoEscapeString.TryGetValue(true, out string customDefaultString))
+                    {
+                        outputList.Add(customDefaultString);
+                    }
+                    else
+                    {
+                        outputList.Add($"<line-height=75%><voffset=30em><align=center><color=#6874E8> No one esacped this round </color>  </align> </voffset> \n");
+                    }
+                }
             }
 
             List<Tuple<string, RoleType, int>> possibleOutcomes = new List<Tuple<string, RoleType, int>>(){
@@ -231,10 +257,11 @@ namespace MvpUtility.EventHandling
 
             foreach (KeyValuePair<string, KillCounterUtility> killerPairedData in listOfPlayersKillStats)
             {
+                Log.Debug($"What was our killer paired data {killerPairedData.Key}, {killerPairedData.Value}");
                 if (plugin.Config.RoundEndBehaviors.ShowLeastKillsHuman.ContainsKey(true))
                 {
                     // Preallocated position of 0, only way I could think to solve without multi-for loops (Same for the rest)
-                    handlePlayerBundling(ref possibleOutcomes, killerPairedData.Value.getWorstRole(), killerPairedData.Key, 0);
+                    handlePlayerBundling(ref possibleOutcomes, killerPairedData.Value.getWorstRoleHuman(), killerPairedData.Key, 0, true);
                 }
                 if (plugin.Config.RoundEndBehaviors.ShowMostKillsHumanOnHuman.ContainsKey(true))
                 {
@@ -361,7 +388,7 @@ namespace MvpUtility.EventHandling
         /// <param name="bestRoleCalc"></param>
         /// <param name="killerPairedDataName"></param>
         /// <param name="outcomePosition"></param>
-        private void handlePlayerBundling(ref List<Tuple<string, RoleType, int>> possibleOutcomes, Tuple<RoleType, int> bestRoleCalc, string killerPairedDataName, int outcomePosition)
+        private void handlePlayerBundling(ref List<Tuple<string, RoleType, int>> possibleOutcomes, Tuple<RoleType, int> bestRoleCalc, string killerPairedDataName, int outcomePosition, bool lessThanLogic = false)
         {
             if (possibleOutcomes[outcomePosition].Item1.IsEmpty())
             {
@@ -370,6 +397,10 @@ namespace MvpUtility.EventHandling
             else
             {
                 if (bestRoleCalc.Item2 > possibleOutcomes[outcomePosition].Item3)
+                {
+                    possibleOutcomes[outcomePosition] = (Tuple.Create(killerPairedDataName, bestRoleCalc.Item1, bestRoleCalc.Item2));
+                }
+                else if (lessThanLogic)
                 {
                     possibleOutcomes[outcomePosition] = (Tuple.Create(killerPairedDataName, bestRoleCalc.Item1, bestRoleCalc.Item2));
                 }
