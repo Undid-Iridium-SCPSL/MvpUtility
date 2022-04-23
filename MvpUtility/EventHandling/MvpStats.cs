@@ -20,7 +20,9 @@ namespace MvpUtility.EventHandling
 
         internal Dictionary<string, KillCounterUtility> listOfPlayersKillStats;
 
-        public Tuple<string, float> firstPlayerEscape;
+
+        public Tuple<string, float> firstPlayerEscape { get; set; } = null;
+
 
         public int recheckCounter { get; set; }
 
@@ -34,6 +36,7 @@ namespace MvpUtility.EventHandling
             listOfPlayersKillStats = new Dictionary<string, KillCounterUtility>();
             recheckCounter = 0;
             Scp106ValidatorCoroutine = Timing.RunCoroutine(checkLast106());
+            firstPlayerEscape = null;
         }
 
         private IEnumerator<float> checkLast106()
@@ -54,7 +57,10 @@ namespace MvpUtility.EventHandling
 
         public void OnEscape(EscapingEventArgs ev)
         {
-            firstPlayerEscape = Tuple.Create(ev.Player.Nickname, Time.time - roundStartTime);
+            if (firstPlayerEscape == null)
+            {
+                firstPlayerEscape = Tuple.Create(ev.Player.Nickname, Time.time - roundStartTime);
+            }
         }
 
         public void OnStart()
