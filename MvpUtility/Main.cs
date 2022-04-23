@@ -29,7 +29,7 @@
         public override Version RequiredExiledVersion { get; } = new Version(5, 1, 3);
 
         /// <inheritdoc />
-        public override Version Version { get; } = new Version(1, 0, 6);
+        public override Version Version { get; } = new Version(1, 0, 7);
 
         /// <summary>
         /// Gets an instance of the <see cref="MvpStats"/> class.

@@ -59,13 +59,15 @@
             /// <summary>
             /// Gets or sets whether to show first player escape.
             /// </summary>
-            [Description("Whether to show first player escape, only takes two params")]
+
+            [Description("Whether to show first player escape, only takes two params, Player, Float ( use {0} {1})")]
             public Dictionary<bool, string> ShowFirstEscape { get; set; } = new Dictionary<bool, string> { { true, string.Empty } };
 
             /// <summary>
             /// Gets or sets whether to show who killed the most entities.
             /// </summary>
-            [Description("Whether to show who killed the most entities, only takes three params")]
+
+            [Description("Whether to show who killed the most entities, only takes two params, Player, Int ( use {0} {1})")]
             public Dictionary<bool, string> ShowMostKillsKiller { get; set; } = new Dictionary<bool, string> { { true, string.Empty } };
 
             /// <summary>
