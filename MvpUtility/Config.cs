@@ -59,43 +59,45 @@
             /// <summary>
             /// Gets or sets whether to show first player escape.
             /// </summary>
+
             [Description("Whether to show first player escape, only takes two params, Player, Float ( use {0} {1})")]
             public Dictionary<bool, string> ShowFirstEscape { get; set; } = new Dictionary<bool, string> { { true, string.Empty } };
 
             /// <summary>
             /// Gets or sets whether to show who killed the most entities.
             /// </summary>
+
             [Description("Whether to show who killed the most entities, only takes two params, Player, Int ( use {0} {1})")]
             public Dictionary<bool, string> ShowMostKillsKiller { get; set; } = new Dictionary<bool, string> { { true, string.Empty } };
 
             /// <summary>
             /// Gets or sets whether to show who killed the most humans as SCP on team.
             /// </summary>
-            [Description("Whether to show who killed the most humans as SCP on team")]
+            [Description("Whether to show who killed the most humans as SCP on team, only takes three params")]
             public Dictionary<bool, string> ShowMostKillsScpTeam { get; set; } = new Dictionary<bool, string> { { true, string.Empty } };
 
             /// <summary>
             /// Gets or sets whether to show who killed the most humans as MTF on team.
             /// </summary>
-            [Description("Whether to show who killed the most humans as MTF on team")]
+            [Description("Whether to show who killed the most humans as MTF on team, only takes three params")]
             public Dictionary<bool, string> ShowMostKillsMtfTeam { get; set; } = new Dictionary<bool, string> { { true, string.Empty } };
 
             /// <summary>
             /// Gets or sets whether to show who killed the most humans as CHAOS on team.
             /// </summary>
-            [Description("Whether to show who killed the most humans as CHAOS on team")]
+            [Description("Whether to show who killed the most humans as CHAOS on team, only takes three params")]
             public Dictionary<bool, string> ShowMostKillsChaosTeam { get; set; } = new Dictionary<bool, string> { { true, string.Empty } };
 
             /// <summary>
             /// Gets or sets whether to show who killed the most humans as human.
             /// </summary>
-            [Description("Whether to show who killed the most humans as human")]
+            [Description("Whether to show who killed the most humans as human, only takes three params")]
             public Dictionary<bool, string> ShowMostKillsHumanOnHuman { get; set; } = new Dictionary<bool, string> { { true, string.Empty } };
 
             /// <summary>
             /// Gets or sets whether to show who killed the least humans as human.
             /// </summary>
-            [Description("Whether to show who killed the least humans as human")]
+            [Description("Whether to show who killed the least humans as human, only takes three params")]
             public Dictionary<bool, string> ShowLeastKillsHuman { get; set; } = new Dictionary<bool, string> { { false, string.Empty } };
         }
     }
