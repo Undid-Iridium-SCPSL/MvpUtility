@@ -186,11 +186,22 @@ namespace MvpUtility.EventHandling
                 }
             }
 
+
+
             string hintToShow = choices[0] + choices[1] + choices[2];
-            // Iterate every player and show the hints. 
-            foreach (Player player in Player.List)
+            // Iterate every player and show the hints.
+            // 
+
+            if (plugin.Config.RoundEndBehaviors.ForceConstantUpdate)
             {
-                player.ShowHint(hintToShow, plugin.Config.HintDisplayLimit);
+                Timing.RunCoroutine(ForceConstantUpdate(hintToShow, (int)plugin.Config.HintDisplayLimit));
+            }
+            else
+            {
+                foreach (Player player in Player.List)
+                {
+                    player.ShowHint(hintToShow, plugin.Config.HintDisplayLimit);
+                }
             }
 
             try
@@ -206,6 +217,20 @@ namespace MvpUtility.EventHandling
             catch (Exception unableToClearFields)
             {
                 Log.Debug($"Unable to clear fields for MvpStats {unableToClearFields}", plugin.Config.EnableDebug);
+            }
+        }
+
+        private IEnumerator<float> ForceConstantUpdate(string hintToShow, int hintDisplayLimit)
+        {
+            int iterationCounter = 0;
+            while (iterationCounter < hintDisplayLimit)
+            {
+                foreach (Player player in Player.List)
+                {
+                    player.ShowHint(hintToShow, plugin.Config.HintDisplayLimit);
+                }
+                yield return Timing.WaitForSeconds(1);
+                iterationCounter++;
             }
         }
 
