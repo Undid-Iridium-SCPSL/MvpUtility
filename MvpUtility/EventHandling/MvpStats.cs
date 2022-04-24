@@ -266,7 +266,7 @@ namespace MvpUtility.EventHandling
                     }
                     else
                     {
-                        outputList.Add($"<line-height=75%><voffset=30em><align=center><color=#6874E8> No one esacped this round </color>  </align> </voffset> \n");
+                        outputList.Add($"<line-height=75%><voffset=30em><align=center><color=#6874E8> No one escaped this round </color>  </align> </voffset> \n");
                     }
                 }
             }
