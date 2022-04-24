@@ -106,6 +106,12 @@
             /// </summary>
             [Description("Default output if no one escapes (No params)")]
             public Dictionary<bool, string> NoEscapeString { get; set; } = new Dictionary<bool, string> { { false, string.Empty } };
+
+            /// <summary>
+            /// Gets or sets whether to show what to default to.
+            /// </summary>
+            [Description("Whether to force constant updates")]
+            public bool ForceConstantUpdate { get; internal set; } = false;
         }
     }
 }
