@@ -29,16 +29,16 @@ Example configuration
 mvp_utility:
   is_enabled: true
   # Control over to enable or disable debug information
-  enable_debug: false
+  enable_debug: true
   # Control over what types to show
   round_end_behaviors:
   # Control over what types to show, whether its first come or random per round
     random_outputs: true
-    # Whether to show first player escape, only takes two params
+    # Whether to show first player escape, only takes two params, Player, Float ( use {0} {1})
     show_first_escape:
       true: >
         <line-height=75%><voffset=30em><align=center><color=#247BA0> {0} </color> was the first person to escape within {1}'s </align> </voffset>
-    # Whether to show who killed the most entities, only takes three params
+    # Whether to show who killed the most entities, only takes two params, Player, Int ( use {0} {1})
     show_most_kills_killer:
       true: >
         <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills (Any) </align> </voffset> 
@@ -60,8 +60,15 @@ mvp_utility:
         <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills as {1} (Human) </align> </voffset> 
     # Whether to show who killed the least humans as human, only takes three params
     show_least_kills_human:
-      false: >
-        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> had {2} kills, how sad as {1} (Human)</align> </voffset> 
+      true: >
+        <line-height=75%><voffset=30em><align=center><color=#F6511D> {0} </color> only had {2} kills, how sad as {1} (Human)</align> </voffset> 
+    # Default output if no one escapes (No params)
+    no_escape_string:
+      false: ''
+    # Whether to force constant updates
+    force_constant_update: false
+    # Hint limit
+    hint_limit: 3
   # How often to check for Scp106
   check_interval: 10
   # Whether to track suicides or not.
