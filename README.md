@@ -21,7 +21,7 @@ TODO:
 
 **[EXILED](https://github.com/Exiled-Team/EXILED) must be installed for this to work.**
 
-Current plugin version: V1.0.0
+Current plugin version: V1.1.1
 
 ## REQUIREMENTS
 * Exiled: V5.1.3
