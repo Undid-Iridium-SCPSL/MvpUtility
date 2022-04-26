@@ -3,6 +3,7 @@ using Exiled.Events.EventArgs;
 using MEC;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 namespace MvpUtility.EventHandling
@@ -140,6 +141,7 @@ namespace MvpUtility.EventHandling
 
             List<string> choices = new List<string>();
 
+            ushort defaultLimit = plugin.Config.RoundEndBehaviors.HintLimit;
 
             // If we're going to use random outputs, we need to verify we do no repeat. 
             if (plugin.Config.RoundEndBehaviors.RandomOutputs)
@@ -147,9 +149,9 @@ namespace MvpUtility.EventHandling
                 HashSet<int> limitedChoices = new HashSet<int>();
 
                 // If we have more than 3 outputs, we will output a random 3 of them
-                if (outputList.Count >= 3)
+                if (outputList.Count >= defaultLimit)
                 {
-                    while (choices.Count != 3)
+                    while (choices.Count != defaultLimit)
                     {
                         int currRandom = UnityEngine.Random.Range(0, outputList.Count);
                         if (limitedChoices.Contains(currRandom))
@@ -165,7 +167,7 @@ namespace MvpUtility.EventHandling
                     // If we don't have 3 outputs available then we assign output list and if that happened to have less than 3
                     // we add dummy values
                     choices = outputList;
-                    while (choices.Count != 3)
+                    while (choices.Count != defaultLimit)
                     {
                         choices.Add(string.Empty);
                     }
@@ -173,25 +175,29 @@ namespace MvpUtility.EventHandling
             }
             else
             {
-                // Iterate our possibility output list to find the first 3, if there are.  
-                for (int pos = 0; pos < outputList.Count && choices.Count != 3; pos++)
+                // Iterate our possibility output list to find the first defaultLimit quantity, if there are.
+                for (int pos = 0; pos < outputList.Count && choices.Count != defaultLimit; pos++)
                 {
                     choices.Add(outputList[pos]);
                 }
 
-                // If in some case we don't have 3 available, dummy ones get added. 
-                while (choices.Count != 3)
+                // If in some case we don't have defaultLimit quantity available, dummy ones get added.
+                while (choices.Count != defaultLimit)
                 {
                     choices.Add(string.Empty);
                 }
             }
 
+            StringBuilder outputHint = new StringBuilder();
 
+            for (int pos = 0; pos < choices.Count; pos++)
+            {
+                outputHint.Append(choices[pos]);
+            }
 
-            string hintToShow = choices[0] + choices[1] + choices[2];
+            string hintToShow = outputHint.ToString();
+
             // Iterate every player and show the hints.
-            // 
-
             if (plugin.Config.RoundEndBehaviors.ForceConstantUpdate)
             {
                 Timing.RunCoroutine(ForceConstantUpdate(hintToShow, (int)plugin.Config.HintDisplayLimit));

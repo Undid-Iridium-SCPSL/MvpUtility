@@ -112,6 +112,12 @@
             /// </summary>
             [Description("Whether to force constant updates")]
             public bool ForceConstantUpdate { get; internal set; } = false;
+
+            /// <summary>
+            /// Gets or sets whether to show what to default to.
+            /// </summary>
+            [Description("Hint limit")]
+            public ushort HintLimit { get; internal set; } = 3;
         }
     }
 }
