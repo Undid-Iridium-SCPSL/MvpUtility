@@ -76,6 +76,10 @@ mvp_utility:
   # How long to display hint.
   hint_display_limit: 10
  ```
- 
+
+User example: 
+
+![image](https://user-images.githubusercontent.com/24619207/165345465-150fd649-78c2-412b-a4b0-14f3af220d77.png)
+
 ![image](https://user-images.githubusercontent.com/24619207/164874580-e924e4fb-a1f5-42f9-abf1-ee61af3f7bdc.png)
 
