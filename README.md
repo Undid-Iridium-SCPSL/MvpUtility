@@ -11,7 +11,11 @@ This plugin basically offers some MVP stats at the end of the round, and you can
 ![MvpUtility LINES](https://img.shields.io/tokei/lines/github/Undid-Iridium/MvpUtility)
 ![MvpUtility DOWNLOADS](https://img.shields.io/github/downloads/Undid-Iridium/MvpUtility/total?style=flat-square)
 
-
+TODO:
+* Add more configuration for locked values
+* Allow ignoring of fields for format string
+* Add the ability for fully customizable strings where I list variables that can be called, and then you can build your own combination of stats. 
+* (The previous one would be strings that users can reference and I would parse them to generate unique strings)
 
 # Installation
 
