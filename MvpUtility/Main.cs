@@ -29,7 +29,7 @@
         public override Version RequiredExiledVersion { get; } = new Version(5, 1, 3);
 
         /// <inheritdoc />
-        public override Version Version { get; } = new Version(1, 1, 0);
+        public override Version Version { get; } = new Version(1, 1, 1);
 
         /// <summary>
         /// Gets an instance of the <see cref="MvpStats"/> class.
@@ -51,7 +51,6 @@
             ServerEvents.RoundStarted += MvpStatsMonitor.OnStart;
 
             ServerEvents.RoundEnded += MvpStatsMonitor.OnRoundEnd;
-            PlayerEvents.FailingEscapePocketDimension += MvpStatsMonitor.OnDimensionDeath;
 
             base.OnEnabled();
         }
@@ -68,7 +67,6 @@
             PlayerEvents.Escaping -= MvpStatsMonitor.OnEscape;
             ServerEvents.RoundStarted -= MvpStatsMonitor.OnStart;
             PlayerEvents.Dying -= MvpStatsMonitor.OnDying;
-            PlayerEvents.FailingEscapePocketDimension -= MvpStatsMonitor.OnDimensionDeath;
             ServerEvents.RoundEnded -= MvpStatsMonitor.OnRoundEnd;
 
             MvpStatsMonitor = null;
