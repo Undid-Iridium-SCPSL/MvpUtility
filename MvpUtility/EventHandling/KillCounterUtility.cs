@@ -67,6 +67,7 @@
                 Log.Debug("We are adding killer to role ", MvpPlugin.Config.EnableDebug);
                 killsAsRole.Add(killer.Role, killPerType);
             }
+
             Log.Debug($"We are parsing type {killer.Role} and target was {target.Role}", MvpPlugin.Config.EnableDebug);
             killPerType.parseTargetType(target);
 
@@ -76,8 +77,6 @@
         {
             return getBestKillsPerTeam(team);
         }
-
-
 
         public Tuple<RoleType, int> getBestKillsPerTeam(Team team)
         {
@@ -115,7 +114,6 @@
             return Tuple.Create(currentBestRole, bestKillsPerTeam);
 
         }
-
 
         /// <summary>
         /// Returns the total amount of entity kills by this player. 

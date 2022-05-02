@@ -17,7 +17,10 @@ namespace MvpUtility.EventHandling
         /// Initializes a new instance of the <see cref="PickupChecker"/> class.
         /// </summary>
         /// <param name="plugin">An instance of the <see cref="Plugin"/> class.</param>
-        public MvpStats(Main plugin) => this.plugin = plugin;
+        public MvpStats(Main plugin)
+        {
+            this.plugin = plugin;
+        }
 
         internal Dictionary<string, KillCounterUtility> listOfPlayersKillStats;
 
@@ -68,12 +71,20 @@ namespace MvpUtility.EventHandling
             roundStarted(Time.time);
         }
 
-
+        /// <summary>
+        /// Tracks players dying, right before their death and stores the killer/target information.
+        /// </summary>
+        /// <param name="ev"> <see cref="DyingEventArgs"/>.</param>
         internal void OnDying(DyingEventArgs ev)
         {
-
             try
             {
+
+                // Pocket dimension teleport calling this?
+                if (ev.Target.Health > 0)
+                {
+                    return;
+                }
 
                 if (ev.Target.Role is Exiled.API.Features.Roles.Scp106Role)
                 {
@@ -90,11 +101,13 @@ namespace MvpUtility.EventHandling
                         return;
                     }
                 }
+
                 // Try to add new killer, and then parse their behavior types
                 if (ev.Killer == null)
                 {
                     return;
                 }
+
                 if (ev.Killer.Nickname == null)
                 {
                     return;
@@ -112,19 +125,12 @@ namespace MvpUtility.EventHandling
             {
                 Log.Debug($" It seems we failed on OnDying, here's why {ex}", plugin.Config.EnableDebug);
             }
+
             //Either just do this directly or give a queue this data for a thread, so we can offload logic to threads
             //Had most kills, killed most scp's, escaped first, most kills per team Nickname : KillCounter(class)
         }
 
-        internal void OnDimensionDeath(FailingEscapePocketDimensionEventArgs ev)
-        {
 
-            if (lastKnown106 != null)
-            {
-                listOfPlayersKillStats.TryAddKey(lastKnown106.Nickname, new KillCounterUtility(plugin));
-                listOfPlayersKillStats[lastKnown106.Nickname].parseKillerStats(lastKnown106, ev.Player);
-            }
-        }
 
         /// <summary>
         /// Called when round is ending, processes statistical data to determine end-round outputs. <see cref="MvpStats"/>
