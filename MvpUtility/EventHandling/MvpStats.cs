@@ -11,7 +11,7 @@ namespace MvpUtility.EventHandling
     public class MvpStats
     {
         public float roundStartTime;
-        public string? MVPMessage;
+        public string MVPMessage = string.Empty;
         private Main plugin;
 
         /// <summary>
@@ -25,14 +25,28 @@ namespace MvpUtility.EventHandling
 
         internal Dictionary<string, KillCounterUtility> listOfPlayersKillStats;
 
-
         public Tuple<string, float> firstPlayerEscape { get; set; } = null;
-
-
 
         private CoroutineHandle Scp106ValidatorCoroutine;
 
         public Player lastKnown106 { get; set; }
+
+        public void ShowHint(bool IsRoundEnd, string hintToShow = null)
+        {
+            MVPMessage = hintToShow;
+            if (IsRoundEnd && plugin.Config.ShowOnRoundEnd)
+            {
+                if (plugin.Config.RoundEndBehaviors.ForceConstantUpdate)
+                    Timing.RunCoroutine(ForceConstantUpdate(hintToShow, (int)plugin.Config.HintDisplayLimit));
+                else
+                    Map.ShowHint(hintToShow, plugin.Config.HintDisplayLimit);
+            }
+            else
+            {
+                Map.ShowHint(MVPMessage, plugin.Config.HintDisplayLimit);
+                MVPMessage = String.Empty;
+            }
+        }
 
         internal void roundStarted(float time)
         {
@@ -70,11 +84,8 @@ namespace MvpUtility.EventHandling
         public void OnStart()
         {
             roundStarted(Time.time);
-            if(!hintToShow.IsNullOrEmpty && plugin.Config.ShowOnRoundStart)
-            {
-                Map.ShowHint(hintToShow, plugin.Config.HintDisplayLimit)
-                hintToShow = null;
-            }
+            if(!MVPMessage.IsEmpty())
+                ShowHint(false);
         }
 
         /// <summary>
@@ -85,7 +96,6 @@ namespace MvpUtility.EventHandling
         {
             try
             {
-
                 // Pocket dimension teleport calling this?
                 if (ev.Target.Health > 0)
                 {
@@ -132,8 +142,8 @@ namespace MvpUtility.EventHandling
                 Log.Debug($" It seems we failed on OnDying, here's why {ex}", plugin.Config.EnableDebug);
             }
 
-            //Either just do this directly or give a queue this data for a thread, so we can offload logic to threads
-            //Had most kills, killed most scp's, escaped first, most kills per team Nickname : KillCounter(class)
+            // Either just do this directly or give a queue this data for a thread, so we can offload logic to threads
+            // Had most kills, killed most scp's, escaped first, most kills per team Nickname : KillCounter(class)
         }
 
         /// <summary>
@@ -205,17 +215,7 @@ namespace MvpUtility.EventHandling
                 outputHint.Append(choices[pos]);
             }
 
-            string hintToShow = outputHint.ToString();
-
-            // Iterate every player and show the hints.
-            MVPMessage = hintToShow;
-            if(plugin.Config.ShowOnRoundEnd)
-            {
-                if (plugin.Config.RoundEndBehaviors.ForceConstantUpdate)
-                    Timing.RunCoroutine(ForceConstantUpdate(hintToShow, (int)plugin.Config.HintDisplayLimit));
-                else
-                    Map.ShowHint(hintToShow, plugin.Config.HintDisplayLimit);
-            }
+            ShowHint(true, outputHint.ToString());
 
             try
             {
