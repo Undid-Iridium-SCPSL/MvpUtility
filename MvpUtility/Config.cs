@@ -23,7 +23,7 @@
         /// Whether or not to show the MVP screen the following round start
         /// </summary>
         [Description("Show the MVP screen next round start?")]
-        public bool ShowOnRoundStart { get; set; } = false;
+        public bool ShowOnRoundStart { get; set; } = true;
 
         /// <summary>
         /// Whether or not to show the MVP screen on round end
