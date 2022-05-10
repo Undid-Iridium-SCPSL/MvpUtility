@@ -51,7 +51,6 @@
             ServerEvents.RoundStarted += MvpStatsMonitor.OnStart;
 
             ServerEvents.RoundEnded += MvpStatsMonitor.OnRoundEnd;
-            ServerEvents.RoundStarted += MvpStatsMonitor.OnRoundStart;
 
             base.OnEnabled();
         }
@@ -70,7 +69,6 @@
             PlayerEvents.Dying -= MvpStatsMonitor.OnDying;
             
             ServerEvents.RoundEnded -= MvpStatsMonitor.OnRoundEnd;
-            ServerEvents.RoundStarted -= MvpStatsMonitor.OnRoundStart;
 
             MvpStatsMonitor = null;
             Instance = null;

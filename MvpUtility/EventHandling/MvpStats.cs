@@ -70,6 +70,11 @@ namespace MvpUtility.EventHandling
         public void OnStart()
         {
             roundStarted(Time.time);
+            if(!hintToShow.IsNullOrEmpty)
+            {
+                Map.ShowHint(hintToShow, plugin.Config.HintDisplayLimit)
+                hintToShow = null;
+            }
         }
 
         /// <summary>
@@ -130,17 +135,6 @@ namespace MvpUtility.EventHandling
             //Either just do this directly or give a queue this data for a thread, so we can offload logic to threads
             //Had most kills, killed most scp's, escaped first, most kills per team Nickname : KillCounter(class)
         }
-
-
-        internal void OnRoundStart()
-        {
-            if(!hintToShow.IsNullOrEmpty)
-            {
-                Map.ShowHint(hintToShow, plugin.Config.HintDisplayLimit)
-                hintToShow = null;
-            }
-        }
-
 
         /// <summary>
         /// Called when round is ending, processes statistical data to determine end-round outputs. <see cref="MvpStats"/>
