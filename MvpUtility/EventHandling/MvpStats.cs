@@ -208,14 +208,12 @@ namespace MvpUtility.EventHandling
             string hintToShow = outputHint.ToString();
 
             // Iterate every player and show the hints.
-            if (plugin.Config.RoundEndBehaviors.ForceConstantUpdate)
+            MVPMessage = hintToShow;
+            if(plugin.Config.ShowOnRoundEnd)
             {
-                Timing.RunCoroutine(ForceConstantUpdate(hintToShow, (int)plugin.Config.HintDisplayLimit));
-            }
-            else
-            {
-                MVPMessage = hintToShow;
-                if(plugin.Config.ShowOnRoundEnd)
+                if (plugin.Config.RoundEndBehaviors.ForceConstantUpdate)
+                    Timing.RunCoroutine(ForceConstantUpdate(hintToShow, (int)plugin.Config.HintDisplayLimit));
+                else
                     Map.ShowHint(hintToShow, plugin.Config.HintDisplayLimit);
             }
 
