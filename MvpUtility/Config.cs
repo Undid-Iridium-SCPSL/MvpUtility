@@ -10,7 +10,6 @@
     public class Config : IConfig
     {
 
-
         /// <inheritdoc />
         public bool IsEnabled { get; set; } = true;
 
@@ -21,10 +20,16 @@
         public bool EnableDebug { get; set; } = false;
 
         /// <summary>
-        /// Whether or not to show the MVP screen the following round start aswell
+        /// Whether or not to show the MVP screen the following round start
         /// </summary>
         [Description("Show the MVP screen next round start?")]
-        public bool ShowRoundOnStart { get; set; } = false;
+        public bool ShowOnRoundStart { get; set; } = false;
+
+        /// <summary>
+        /// Whether or not to show the MVP screen on round end
+        /// </summary>
+        [Description("Show the MVP screen next round start?")]
+        public bool ShowOnRoundEnd { get; set; } = false;
 
         /// <summary>
         /// Gets or sets what types of end round outputs should be shown.

@@ -70,7 +70,7 @@ namespace MvpUtility.EventHandling
         public void OnStart()
         {
             roundStarted(Time.time);
-            if(!hintToShow.IsNullOrEmpty)
+            if(!hintToShow.IsNullOrEmpty && plugin.Config.ShowOnRoundStart)
             {
                 Map.ShowHint(hintToShow, plugin.Config.HintDisplayLimit)
                 hintToShow = null;
@@ -214,8 +214,9 @@ namespace MvpUtility.EventHandling
             }
             else
             {
-                Map.ShowHint(hintToShow, plugin.Config.HintDisplayLimit);
                 MVPMessage = hintToShow;
+                if(plugin.Config.ShowOnRoundEnd)
+                    Map.ShowHint(hintToShow, plugin.Config.HintDisplayLimit);
             }
 
             try
