@@ -11,6 +11,7 @@ namespace MvpUtility.EventHandling
     public class MvpStats
     {
         public float roundStartTime;
+        public string? MVPMessage;
         private Main plugin;
 
         /// <summary>
@@ -131,6 +132,15 @@ namespace MvpUtility.EventHandling
         }
 
 
+        internal void OnRoundStart()
+        {
+            if(!hintToShow.IsNullOrEmpty)
+            {
+                Map.ShowHint(hintToShow, plugin.Config.HintDisplayLimit)
+                hintToShow = null;
+            }
+        }
+
 
         /// <summary>
         /// Called when round is ending, processes statistical data to determine end-round outputs. <see cref="MvpStats"/>
@@ -210,10 +220,8 @@ namespace MvpUtility.EventHandling
             }
             else
             {
-                foreach (Player player in Player.List)
-                {
-                    player.ShowHint(hintToShow, plugin.Config.HintDisplayLimit);
-                }
+                Map.ShowHint(hintToShow, plugin.Config.HintDisplayLimit);
+                MVPMessage = hintToShow;
             }
 
             try
