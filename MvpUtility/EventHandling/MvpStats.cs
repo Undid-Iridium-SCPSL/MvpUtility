@@ -177,7 +177,8 @@ namespace MvpUtility.EventHandling
             this.lastGeneratedHint = hintToShow;
 
             // We still call the hint generation logic because, if we need to use it for round start, it is still cheaper to do it when round ends.
-            if(!this.plugin.Config.ShowOnRoundEnd) {
+            if(!this.plugin.Config.ShowOnRoundEnd)
+            {
                 return;
             }
 
@@ -215,7 +216,8 @@ namespace MvpUtility.EventHandling
         /// </summary>
         private string GenerateOutputHintList()
         {
-            if(this.FirstPlayerEscape is null && this.listOfPlayersKillStats is null){
+            if (this.FirstPlayerEscape is null && this.listOfPlayersKillStats is null)
+            {
                 return null;
             }
 
@@ -283,7 +285,6 @@ namespace MvpUtility.EventHandling
             }
 
             return outputHint.ToString();
-
         }
 
         private IEnumerator<float> ForceConstantUpdate(string hintToShow, int hintDisplayLimit)

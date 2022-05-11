@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="KillCounterUtility.cs" company="Undid-Iridium">
+// <copyright file="KillsPerType.cs" company="Undid-Iridium">
 // Copyright (c) Undid-Iridium. All rights reserved.
 // Licensed under the CC BY-SA 3.0 license.
 // </copyright>
@@ -10,7 +10,6 @@ namespace MvpUtility.EventHandling
     using System;
     using System.Collections.Generic;
     using Exiled.API.Features;
-    using Respawning;
 
     /// <summary>
     /// Internal class that handles the Killer -> Targets (Those killed by killer stats).
@@ -20,29 +19,39 @@ namespace MvpUtility.EventHandling
         private Dictionary<RoleType, int> targetTypedKilled;
 
         /// <summary>
-        /// 
-        /// </summary>
-        public Tuple<RoleType, int> HighestKillRoleCount { get; set; }
-        public Tuple<RoleType, int> lowestKillRoleCount { get; set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="KillsPerType"/> class.
         /// </summary>
         public KillsPerType()
         {
-            totalKilled = 0;
+            TotalKilled = 0;
             targetTypedKilled = new Dictionary<RoleType, int>();
         }
 
-        public int totalKilled { get; set; }
-        private bool alreadyCalculated { get; set; } = false;
-     
+        /// <summary>
+        /// Gets or sets highest kill for the role.
+        /// </summary>
+        public Tuple<RoleType, int> HighestKillRoleCount { get; set; }
 
         /// <summary>
-        /// Given the target what stats needs to be incremented or created. 
+        /// Gets or sets lowest kill for role.
         /// </summary>
-        /// <param name="target"></param>
-        public void parseTargetType(Player target)
+        public Tuple<RoleType, int> LowestKillRoleCount { get; set; }
+
+        /// <summary>
+        /// Gets or sets total players killed by current player.
+        /// </summary>
+        public int TotalKilled { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether whether to recalculate lowest, and highest kill count.
+        /// </summary>
+        private bool AlreadyCalculated { get; set; } = false;
+
+        /// <summary>
+        /// Given the target what stats needs to be incremented or created.
+        /// </summary>
+        /// <param name="target"> Current player killed. </param>
+        public void ParseTargetType(Player target)
         {
             if (target == null)
             {
@@ -54,15 +63,15 @@ namespace MvpUtility.EventHandling
                 targetTypedKilled[target.Role] = targetTypedKilled[target.Role] + 1;
             }
 
-            totalKilled++;
+            TotalKilled++;
         }
 
         /// <summary>
         /// Calculates the total kills per role by access internal dictionary.
         /// </summary>
-        /// <param name="role"></param>
-        /// <returns></returns>
-        public int totalKillsPerRole(RoleType role)
+        /// <param name="role"> Current role to check against. </param>
+        /// <returns> Counter of total kills for role. </returns>
+        public int TotalKillsPerRole(RoleType role)
         {
             targetTypedKilled.TryGetValue(role, out int value);
             return value;
@@ -73,7 +82,7 @@ namespace MvpUtility.EventHandling
         /// total kills for Killer (Role being Scp.. or MTF.. or Chaos).
         /// </summary>
         /// <returns> <see cref="int"/> total kills for the current role. </returns>
-        public int totalKillsForMyRole()
+        public int TotalKillsForMyRole()
         {
             int value = 0;
 
@@ -85,50 +94,47 @@ namespace MvpUtility.EventHandling
             return value;
         }
 
-
         /// <summary>
         /// Calculates the highest kills in a role, also calculates the lowest but only does it once. If constant updates
-        /// are wanted then override boolean is needed. 
+        /// are wanted then override boolean is needed.
         /// </summary>
-        /// <returns></returns>
-        public Tuple<RoleType, int> calculateHighestKillsInRole()
+        /// <returns> Killer role and kill count of best killer in role. </returns>
+        public Tuple<RoleType, int> CalculateHighestKillsInRole()
         {
-            killsPerRoleCalculator();
+            KillsPerRoleCalculator();
             return HighestKillRoleCount;
         }
 
         /// <summary>
         /// Calculates the lowest kills in a role, also calculates the highest but only does it once. If constant updates
-        /// are wanted then override boolean is needed. 
+        /// are wanted then override boolean is needed.
         /// </summary>
-        /// <returns></returns>
-        public Tuple<RoleType, int> calculateLowestKillsInAllRoles()
+        /// <returns> Lowest killer with kill count. </returns>
+        public Tuple<RoleType, int> CalculateLowestKillsInAllRoles()
         {
-            killsPerRoleCalculator();
-            return lowestKillRoleCount;
+            KillsPerRoleCalculator();
+            return LowestKillRoleCount;
         }
 
-
-
         /// <summary>
-        /// Does calculation for both highest and lowest kills but does not return anything. 
+        /// Does calculation for both highest and lowest kills but does not return anything.
         /// </summary>
-        public void setHighestKillsInAllRoles()
+        public void SetHighestKillsInAllRoles()
         {
-            killsPerRoleCalculator();
+            KillsPerRoleCalculator();
         }
 
         /// <summary>
         /// Calculates kills for current Killer.
         /// </summary>
         /// <param name="recalculate"> optional param to recalculate if calculations were done. </param>
-        public void killsPerRoleCalculator(bool recalculate = false)
+        public void KillsPerRoleCalculator(bool recalculate = false)
         {
             // Tuple<RoleType, int> highestRoleKill = new Tuple<RoleType, int>(RoleType.None, 0);
-            // No benefit to not calculate both when iterating. 
+            // No benefit to not calculate both when iterating.
 
-            //Assumes that calculation was just done, why repeat loop. Otherwise, use recalculate variable.
-            if (alreadyCalculated && !recalculate)
+            // Assumes that calculation was just done, why repeat loop. Otherwise, use recalculate variable.
+            if (AlreadyCalculated && !recalculate)
             {
                 return;
             }
@@ -155,9 +161,9 @@ namespace MvpUtility.EventHandling
             }
 
             HighestKillRoleCount = Tuple.Create(highestKillRole, highestKillCount);
-            lowestKillRoleCount = Tuple.Create(lowestKillRole, lowestKillCount);
+            LowestKillRoleCount = Tuple.Create(lowestKillRole, lowestKillCount);
 
-            alreadyCalculated = true;
+            AlreadyCalculated = true;
         }
     }
 }

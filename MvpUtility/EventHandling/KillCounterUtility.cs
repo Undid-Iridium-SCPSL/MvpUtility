@@ -86,7 +86,7 @@ namespace MvpUtility.EventHandling
             }
 
             Log.Debug($"We are parsing type {killer.Role} and target was {target.Role}", MvpPlugin.Config.EnableDebug);
-            killPerType.parseTargetType(target);
+            killPerType.ParseTargetType(target);
         }
 
         /// <summary>
@@ -99,9 +99,9 @@ namespace MvpUtility.EventHandling
             int bestKillsPerRoleCounter = int.MinValue;
             foreach (KeyValuePair<RoleType, KillsPerType> pairedData in killsAsRole)
             {
-                if (bestKillsPerRoleCounter < pairedData.Value.totalKilled)
+                if (bestKillsPerRoleCounter < pairedData.Value.TotalKilled)
                 {
-                    bestKillsPerRoleCounter = pairedData.Value.totalKilled;
+                    bestKillsPerRoleCounter = pairedData.Value.TotalKilled;
                     bestRole = pairedData.Key;
                 }
             }
@@ -141,10 +141,10 @@ namespace MvpUtility.EventHandling
                     continue;
                 }
 
-                if (bestKillsPerTeam < killPerType.totalKilled)
+                if (bestKillsPerTeam < killPerType.TotalKilled)
                 {
                     currentBestRole = teamToParse[pos];
-                    bestKillsPerTeam = killPerType.totalKilled;
+                    bestKillsPerTeam = killPerType.TotalKilled;
                 }
             }
 
@@ -163,7 +163,7 @@ namespace MvpUtility.EventHandling
                 return 0;
             }
 
-            return killPerType.totalKillsPerRole(playerRole);
+            return killPerType.TotalKillsPerRole(playerRole);
         }
 
         /// <summary>
@@ -176,9 +176,9 @@ namespace MvpUtility.EventHandling
             int worstKillsPerRole = int.MaxValue;
             foreach (KeyValuePair<RoleType, KillsPerType> pairedData in killsAsRole)
             {
-                if (worstKillsPerRole > pairedData.Value.totalKilled)
+                if (worstKillsPerRole > pairedData.Value.TotalKilled)
                 {
-                    worstKillsPerRole = pairedData.Value.totalKilled;
+                    worstKillsPerRole = pairedData.Value.TotalKilled;
                     worstRole = pairedData.Key;
                 }
             }
@@ -195,7 +195,7 @@ namespace MvpUtility.EventHandling
             Tuple<RoleType, int> currentBestRole = Tuple.Create(RoleType.None, int.MinValue);
             foreach (KeyValuePair<RoleType, KillsPerType> pairedData in killsAsRole)
             {
-                Tuple<RoleType, int> currentBestRoleCalc = Tuple.Create(pairedData.Key, pairedData.Value.totalKilled);
+                Tuple<RoleType, int> currentBestRoleCalc = Tuple.Create(pairedData.Key, pairedData.Value.TotalKilled);
                 if (currentBestRoleCalc.Item2 > currentBestRole.Item2)
                 {
                     currentBestRole = currentBestRoleCalc;
@@ -217,7 +217,7 @@ namespace MvpUtility.EventHandling
             {
                 if (!IsScp(pairedData.Key))
                 {
-                    Tuple<RoleType, int> currentBestRoleCalc = Tuple.Create(pairedData.Key, pairedData.Value.totalKilled);
+                    Tuple<RoleType, int> currentBestRoleCalc = Tuple.Create(pairedData.Key, pairedData.Value.TotalKilled);
                     if (currentBestRoleCalc.Item2 > currentBestRole.Item2)
                     {
                         currentBestRole = currentBestRoleCalc;
@@ -240,9 +240,9 @@ namespace MvpUtility.EventHandling
             {
                 if (!IsScp(pairedData.Key))
                 {
-                    if (pairedData.Value.totalKilled < currentWorstRole.Item2)
+                    if (pairedData.Value.TotalKilled < currentWorstRole.Item2)
                     {
-                        currentWorstRole = Tuple.Create(pairedData.Key, pairedData.Value.totalKilled);
+                        currentWorstRole = Tuple.Create(pairedData.Key, pairedData.Value.TotalKilled);
                     }
                 }
             }
