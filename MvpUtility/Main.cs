@@ -1,9 +1,16 @@
-﻿namespace MvpUtility
+﻿// -----------------------------------------------------------------------
+// <copyright file="Main.cs" company="Undid-Iridium">
+// Copyright (c) Undid-Iridium. All rights reserved.
+// Licensed under the CC BY-SA 3.0 license.
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace MvpUtility
 {
+    using System;
     using Exiled.API.Features;
     using HarmonyLib;
     using MvpUtility.EventHandling;
-    using System;
     using PlayerEvents = Exiled.Events.Handlers.Player;
     using ServerEvents = Exiled.Events.Handlers.Server;
 
@@ -15,7 +22,7 @@
         private Harmony harmony;
 
         /// <summary>
-        /// Gets a static instance of the <see cref="Plugin"/> class.
+        /// Gets a static instance of the <see cref="Main"/> class.
         /// </summary>
         public static Main Instance { get; private set; }
 
@@ -58,11 +65,8 @@
         /// <inheritdoc />
         public override void OnDisabled()
         {
-
-
             harmony.UnpatchAll(harmony.Id);
             harmony = null;
-
 
             PlayerEvents.Escaping -= MvpStatsMonitor.OnEscape;
             ServerEvents.RoundStarted -= MvpStatsMonitor.OnStart;
