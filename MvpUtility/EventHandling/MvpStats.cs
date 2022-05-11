@@ -59,20 +59,23 @@ namespace MvpUtility.EventHandling
         /// </summary>
         public void OnStart()
         {
-            if (plugin.Config.ShowOnRoundEnd)
+            if (plugin.Config.ShowOnRoundStart)
             {
                 if (lastGeneratedHint is null)
                 {
-                    lastGeneratedHint = generateOutputHintList();
+                    lastGeneratedHint = GenerateOutputHintList();
                 }
 
-                if (plugin.Config.RoundEndBehaviors.ForceConstantUpdate)
+                if (lastGeneratedHint is not null)
                 {
-                    Timing.RunCoroutine(ForceConstantUpdate(lastGeneratedHint, (int)plugin.Config.HintDisplayLimit));
-                }
-                else
-                {
-                    Map.ShowHint(lastGeneratedHint, plugin.Config.HintDisplayLimit);
+                    if (plugin.Config.RoundEndBehaviors.ForceConstantUpdate)
+                    {
+                        Timing.RunCoroutine(ForceConstantUpdate(lastGeneratedHint, (int)plugin.Config.HintDisplayLimit));
+                    }
+                    else
+                    {
+                        Map.ShowHint(lastGeneratedHint, plugin.Config.HintDisplayLimit);
+                    }
                 }
             }
 
@@ -169,7 +172,7 @@ namespace MvpUtility.EventHandling
         /// <param name="ev"> <see cref="RoundEndedEventArgs"/>.</param>
         internal void OnRoundEnd(RoundEndedEventArgs ev)
         {
-            string hintToShow = generateOutputHintList();
+            string hintToShow = GenerateOutputHintList();
 
             this.lastGeneratedHint = hintToShow;
 
@@ -208,11 +211,14 @@ namespace MvpUtility.EventHandling
         }
 
         /// <summary>
-        /// 
+        /// Generates the hint string to show on screen.
         /// </summary>
-        /// <param name="outputList"></param>
-        private string generateOutputHintList()
+        private string GenerateOutputHintList()
         {
+            if(this.FirstPlayerEscape is null && this.listOfPlayersKillStats is null){
+                return null;
+            }
+
             // The following segments of code is the best I can come up without reflection usage
             List<string> outputList = new List<string>();
 
