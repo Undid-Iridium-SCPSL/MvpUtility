@@ -68,13 +68,16 @@ namespace MvpUtility.EventHandling
 
                 if (lastGeneratedHint is not null)
                 {
-                    if (plugin.Config.RoundEndBehaviors.ForceConstantUpdate)
+                    if (!lastGeneratedHint.IsEmpty())
                     {
-                        Timing.RunCoroutine(ForceConstantUpdate(lastGeneratedHint, (int)plugin.Config.HintDisplayLimit));
-                    }
-                    else
-                    {
-                        Map.ShowHint(lastGeneratedHint, plugin.Config.HintDisplayLimit);
+                        if (plugin.Config.RoundEndBehaviors.ForceConstantUpdate)
+                        {
+                            Timing.RunCoroutine(ForceConstantUpdate(lastGeneratedHint, (int)plugin.Config.HintDisplayLimit));
+                        }
+                        else
+                        {
+                            Map.ShowHint(lastGeneratedHint, plugin.Config.HintDisplayLimit);
+                        }
                     }
                 }
             }
