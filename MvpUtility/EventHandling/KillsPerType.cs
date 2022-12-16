@@ -5,6 +5,9 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using Exiled.API.Features.Roles;
+using PlayerRoles;
+
 namespace MvpUtility.EventHandling
 {
     using System;
@@ -16,7 +19,7 @@ namespace MvpUtility.EventHandling
     /// </summary>
     internal class KillsPerType
     {
-        private Dictionary<RoleType, int> targetTypedKilled;
+        private Dictionary<RoleTypeId, int> targetTypedKilled;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KillsPerType"/> class.
@@ -24,18 +27,18 @@ namespace MvpUtility.EventHandling
         public KillsPerType()
         {
             TotalKilled = 0;
-            targetTypedKilled = new Dictionary<RoleType, int>();
+            targetTypedKilled = new Dictionary<RoleTypeId, int>();
         }
 
         /// <summary>
         /// Gets or sets highest kill for the role.
         /// </summary>
-        public Tuple<RoleType, int> HighestKillRoleCount { get; set; }
+        public Tuple<RoleTypeId, int> HighestKillRoleCount { get; set; }
 
         /// <summary>
         /// Gets or sets lowest kill for role.
         /// </summary>
-        public Tuple<RoleType, int> LowestKillRoleCount { get; set; }
+        public Tuple<RoleTypeId, int> LowestKillRoleCount { get; set; }
 
         /// <summary>
         /// Gets or sets total players killed by current player.
@@ -71,7 +74,7 @@ namespace MvpUtility.EventHandling
         /// </summary>
         /// <param name="role"> Current role to check against. </param>
         /// <returns> Counter of total kills for role. </returns>
-        public int TotalKillsPerRole(RoleType role)
+        public int TotalKillsPerRole(RoleTypeId role)
         {
             targetTypedKilled.TryGetValue(role, out int value);
             return value;
@@ -86,7 +89,7 @@ namespace MvpUtility.EventHandling
         {
             int value = 0;
 
-            foreach (KeyValuePair<RoleType, int> pairedData in targetTypedKilled)
+            foreach (KeyValuePair<RoleTypeId, int> pairedData in targetTypedKilled)
             {
                 value += pairedData.Value;
             }
@@ -99,7 +102,7 @@ namespace MvpUtility.EventHandling
         /// are wanted then override boolean is needed.
         /// </summary>
         /// <returns> Killer role and kill count of best killer in role. </returns>
-        public Tuple<RoleType, int> CalculateHighestKillsInRole()
+        public Tuple<RoleTypeId, int> CalculateHighestKillsInRole()
         {
             KillsPerRoleCalculator();
             return HighestKillRoleCount;
@@ -110,7 +113,7 @@ namespace MvpUtility.EventHandling
         /// are wanted then override boolean is needed.
         /// </summary>
         /// <returns> Lowest killer with kill count. </returns>
-        public Tuple<RoleType, int> CalculateLowestKillsInAllRoles()
+        public Tuple<RoleTypeId, int> CalculateLowestKillsInAllRoles()
         {
             KillsPerRoleCalculator();
             return LowestKillRoleCount;
@@ -130,7 +133,7 @@ namespace MvpUtility.EventHandling
         /// <param name="recalculate"> optional param to recalculate if calculations were done. </param>
         public void KillsPerRoleCalculator(bool recalculate = false)
         {
-            // Tuple<RoleType, int> highestRoleKill = new Tuple<RoleType, int>(RoleType.None, 0);
+            // Tuple<RoleTypeId, int> highestRoleKill = new Tuple<RoleTypeId, int>(RoleTypeId.None, 0);
             // No benefit to not calculate both when iterating.
 
             // Assumes that calculation was just done, why repeat loop. Otherwise, use recalculate variable.
@@ -139,13 +142,13 @@ namespace MvpUtility.EventHandling
                 return;
             }
 
-            RoleType highestKillRole = RoleType.None;
+            RoleTypeId highestKillRole = RoleTypeId.None;
             int highestKillCount = int.MinValue;
 
-            RoleType lowestKillRole = RoleType.None;
+            RoleTypeId lowestKillRole = RoleTypeId.None;
             int lowestKillCount = int.MaxValue;
 
-            foreach (KeyValuePair<RoleType, int> pair in targetTypedKilled)
+            foreach (KeyValuePair<RoleTypeId, int> pair in targetTypedKilled)
             {
                 if (pair.Value < lowestKillCount)
                 {

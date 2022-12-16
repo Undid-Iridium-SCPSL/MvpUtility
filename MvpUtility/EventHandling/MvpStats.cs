@@ -5,6 +5,10 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using Exiled.Events.EventArgs.Player;
+using Exiled.Events.EventArgs.Server;
+using PlayerRoles;
+
 namespace MvpUtility.EventHandling
 {
     using System;
@@ -127,9 +131,9 @@ namespace MvpUtility.EventHandling
                     Timing.KillCoroutines(scp106ValidatorCoroutine);
                 }
 
-                if (ev.Handler != null)
+                if (ev.DamageHandler != null)
                 {
-                    if (ev.Handler.Type is Exiled.API.Enums.DamageType.PocketDimension && LastKnown106 != null)
+                    if (ev.DamageHandler.Type is Exiled.API.Enums.DamageType.PocketDimension && LastKnown106 != null)
                     {
                         listOfPlayersKillStats.TryAddKey(LastKnown106.Nickname, new KillCounterUtility(plugin));
                         listOfPlayersKillStats[LastKnown106.Nickname].ParseKillerStats(LastKnown106, ev.Target);
@@ -138,24 +142,24 @@ namespace MvpUtility.EventHandling
                 }
 
                 // Try to add new killer, and then parse their behavior types
-                if (ev.Killer == null)
+                if (ev.Player == null)
                 {
                     return;
                 }
 
-                if (ev.Killer.Nickname == null)
+                if (ev.Player.Nickname == null)
                 {
                     return;
                 }
 
                 // Do not allow suicides (Add config)
-                if (ev.Killer == ev.Target && !plugin.Config.TrackSuicides)
+                if (ev.Player == ev.Target && !plugin.Config.TrackSuicides)
                 {
                     return;
                 }
 
-                listOfPlayersKillStats.TryAddKey(ev.Killer.Nickname, new KillCounterUtility(plugin));
-                listOfPlayersKillStats[ev.Killer.Nickname].ParseKillerStats(ev.Killer, ev.Target);
+                listOfPlayersKillStats.TryAddKey(ev.Player.Nickname, new KillCounterUtility(plugin));
+                listOfPlayersKillStats[ev.Player.Nickname].ParseKillerStats(ev.Player, ev.Target);
             }
             catch (Exception ex)
             {
@@ -357,14 +361,14 @@ namespace MvpUtility.EventHandling
                 }
             }
 
-            List<Tuple<string, RoleType, int>> possibleOutcomes = new List<Tuple<string, RoleType, int>>()
+            List<Tuple<string, RoleTypeId, int>> possibleOutcomes = new List<Tuple<string, RoleTypeId, int>>()
             {
-                Tuple.Create(string.Empty, RoleType.None, int.MaxValue), // Worst player
-                Tuple.Create(string.Empty, RoleType.None, int.MinValue), // Best player (Most kills human on human)
-                Tuple.Create(string.Empty, RoleType.None, int.MinValue), // Best player (Killer in general, all entities)
-                Tuple.Create(string.Empty, RoleType.None, int.MinValue), // Best player (Best per Mtf)
-                Tuple.Create(string.Empty, RoleType.None, int.MinValue), // Best player (Best per Chaos)
-                Tuple.Create(string.Empty, RoleType.None, int.MinValue), // Best player (Best per ScpTeam)
+                Tuple.Create(string.Empty, RoleTypeId.None, int.MaxValue), // Worst player
+                Tuple.Create(string.Empty, RoleTypeId.None, int.MinValue), // Best player (Most kills human on human)
+                Tuple.Create(string.Empty, RoleTypeId.None, int.MinValue), // Best player (Killer in general, all entities)
+                Tuple.Create(string.Empty, RoleTypeId.None, int.MinValue), // Best player (Best per Mtf)
+                Tuple.Create(string.Empty, RoleTypeId.None, int.MinValue), // Best player (Best per Chaos)
+                Tuple.Create(string.Empty, RoleTypeId.None, int.MinValue), // Best player (Best per ScpTeam)
             };
 
             foreach (KeyValuePair<string, KillCounterUtility> killerPairedData in listOfPlayersKillStats)
@@ -388,17 +392,17 @@ namespace MvpUtility.EventHandling
 
                 if (plugin.Config.RoundEndBehaviors.ShowMostKillsMtfTeam.ContainsKey(true))
                 {
-                    HandlePlayerBundling(ref possibleOutcomes, killerPairedData.Value.GetBestKillsPerTeam(Team.MTF), killerPairedData.Key, 3);
+                    HandlePlayerBundling(ref possibleOutcomes, killerPairedData.Value.GetBestKillsPerTeam(Team.FoundationForces), killerPairedData.Key, 3);
                 }
 
                 if (plugin.Config.RoundEndBehaviors.ShowMostKillsChaosTeam.ContainsKey(true))
                 {
-                    HandlePlayerBundling(ref possibleOutcomes, killerPairedData.Value.GetBestKillsPerTeam(Team.CHI), killerPairedData.Key, 4);
+                    HandlePlayerBundling(ref possibleOutcomes, killerPairedData.Value.GetBestKillsPerTeam(Team.ChaosInsurgency), killerPairedData.Key, 4);
                 }
 
                 if (plugin.Config.RoundEndBehaviors.ShowMostKillsScpTeam.ContainsKey(true))
                 {
-                    HandlePlayerBundling(ref possibleOutcomes, killerPairedData.Value.GetBestKillsPerTeam(Team.SCP), killerPairedData.Key, 5);
+                    HandlePlayerBundling(ref possibleOutcomes, killerPairedData.Value.GetBestKillsPerTeam(Team.SCPs), killerPairedData.Key, 5);
                 }
             }
 
@@ -408,7 +412,7 @@ namespace MvpUtility.EventHandling
             // TODO make return a struct/class that has a success/fail flag instead of this checking crap against something crap.
             if (plugin.Config.RoundEndBehaviors.ShowLeastKillsHuman.ContainsKey(true))
             {
-                if (possibleOutcomes[0].Item2 != RoleType.None)
+                if (possibleOutcomes[0].Item2 != RoleTypeId.None)
                 {
                     customString = plugin.Config.RoundEndBehaviors.ShowLeastKillsHuman[true] ?? string.Empty;
                     GenerateString(ref outputList, possibleOutcomes, customString, $"<line-height=75%><voffset=30em><align=center><color=#F6511D> {possibleOutcomes[0].Item1} </color> had {possibleOutcomes[0].Item3} kills, how sad. </align> </voffset> \n", 0);
@@ -417,7 +421,7 @@ namespace MvpUtility.EventHandling
 
             if (plugin.Config.RoundEndBehaviors.ShowMostKillsHumanOnHuman.ContainsKey(true))
             {
-                if (possibleOutcomes[1].Item2 != RoleType.None)
+                if (possibleOutcomes[1].Item2 != RoleTypeId.None)
                 {
                     customString = plugin.Config.RoundEndBehaviors.ShowMostKillsHumanOnHuman[true] ?? string.Empty;
                     GenerateString(ref outputList, possibleOutcomes, customString, $"<line-height=75%><voffset=30em><align=center><color=#241623> {possibleOutcomes[1].Item1} </color>" + $" had {possibleOutcomes[1].Item3} kills as a lonely human. </align> </voffset> \n", 1);
@@ -436,7 +440,7 @@ namespace MvpUtility.EventHandling
 
             if (plugin.Config.RoundEndBehaviors.ShowMostKillsMtfTeam.ContainsKey(true))
             {
-                if (possibleOutcomes[3].Item2 != RoleType.None)
+                if (possibleOutcomes[3].Item2 != RoleTypeId.None)
                 {
                     customString = plugin.Config.RoundEndBehaviors.ShowMostKillsMtfTeam[true] ?? string.Empty;
                     GenerateString(ref outputList, possibleOutcomes, customString, $"<line-height=75%><voffset=30em><align=center><color=#3C787E> {possibleOutcomes[3].Item1} </color>" + $" had {possibleOutcomes[3].Item3} kills as {possibleOutcomes[3].Item2} (MTF). </align> </voffset> \n", 3);
@@ -445,7 +449,7 @@ namespace MvpUtility.EventHandling
 
             if (plugin.Config.RoundEndBehaviors.ShowMostKillsChaosTeam.ContainsKey(true))
             {
-                if (possibleOutcomes[4].Item2 != RoleType.None)
+                if (possibleOutcomes[4].Item2 != RoleTypeId.None)
                 {
                     customString = plugin.Config.RoundEndBehaviors.ShowMostKillsChaosTeam[true] ?? string.Empty;
                     GenerateString(ref outputList, possibleOutcomes, customString, $"<line-height=75%><voffset=30em><align=center><color=#C7EF00> {possibleOutcomes[4].Item1} </color>" + $" had {possibleOutcomes[4].Item3} kills as {possibleOutcomes[4].Item2} (Chaos). </align> </voffset> \n", 4);
@@ -454,7 +458,7 @@ namespace MvpUtility.EventHandling
 
             if (plugin.Config.RoundEndBehaviors.ShowMostKillsScpTeam.ContainsKey(true))
             {
-                if (possibleOutcomes[5].Item2 != RoleType.None)
+                if (possibleOutcomes[5].Item2 != RoleTypeId.None)
                 {
                     customString = plugin.Config.RoundEndBehaviors.ShowMostKillsScpTeam[true] ?? string.Empty;
                     GenerateString(ref outputList, possibleOutcomes, customString, $"<line-height=75%><voffset=30em><align=center><color=#D56F3E> {possibleOutcomes[5].Item1} </color>" + $" had {possibleOutcomes[5].Item3} kills as {possibleOutcomes[5].Item2} (SCP). </align> </voffset> \n", 5);
@@ -470,7 +474,7 @@ namespace MvpUtility.EventHandling
         /// <param name="configValue"> Whether to run the default string or config string. </param>
         /// <param name="defaultValue"> Default string set by program. </param>
         /// <param name="pos"> Current position in possible outcomes. </param>
-        private void GenerateString(ref List<string> outputList, List<Tuple<string, RoleType, int>> possibleOutcomes, string configValue, string defaultValue, int pos)
+        private void GenerateString(ref List<string> outputList, List<Tuple<string, RoleTypeId, int>> possibleOutcomes, string configValue, string defaultValue, int pos)
         {
             if (configValue.Equals(string.Empty))
             {
@@ -490,7 +494,7 @@ namespace MvpUtility.EventHandling
         /// <param name="killerPairedDataName"> Name of current player. </param>
         /// <param name="outcomePosition"> What location in the outputList is associated.</param>
         /// <param name="lessThanLogic"> Whether we're checking greater than previous or less than. </param>
-        private void HandlePlayerBundling(ref List<Tuple<string, RoleType, int>> possibleOutcomes, Tuple<RoleType, int> currentRoleCalc, string killerPairedDataName, int outcomePosition, bool lessThanLogic = false)
+        private void HandlePlayerBundling(ref List<Tuple<string, RoleTypeId, int>> possibleOutcomes, Tuple<RoleTypeId, int> currentRoleCalc, string killerPairedDataName, int outcomePosition, bool lessThanLogic = false)
         {
             if (possibleOutcomes[outcomePosition].Item1.IsEmpty())
             {

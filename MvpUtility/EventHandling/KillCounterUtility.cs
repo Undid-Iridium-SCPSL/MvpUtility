@@ -5,6 +5,8 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using PlayerRoles;
+
 namespace MvpUtility.EventHandling
 {
     using System;
@@ -17,26 +19,26 @@ namespace MvpUtility.EventHandling
     /// </summary>
     internal class KillCounterUtility
     {
-        // Not counting Scientist (I would assume not really a focus, as easy to add as RoleType.Scientist)
+        // Not counting Scientist (I would assume not really a focus, as easy to add as RoleTypeId.Scientist)
 
         /// <summary>
         /// All the possible NTF's in game by Role (Not including Scientist).
         /// </summary>
-        private static List<RoleType> allPossibleNtf = new List<RoleType>() { RoleType.NtfCaptain, RoleType.NtfPrivate, RoleType.NtfSergeant, RoleType.NtfSpecialist, RoleType.FacilityGuard };
+        private static List<RoleTypeId> allPossibleNtf = new() { RoleTypeId.NtfCaptain, RoleTypeId.NtfPrivate, RoleTypeId.NtfSergeant, RoleTypeId.NtfSpecialist, RoleTypeId.FacilityGuard };
 
-        // Not counting D-Boys (I would assume not really a focus, as easy to add as RoleType.DBoy)
-        private static List<RoleType> allPossibleChaos = new List<RoleType>() { RoleType.ChaosConscript, RoleType.ChaosMarauder, RoleType.ChaosRepressor, RoleType.ChaosRifleman };
+        // Not counting D-Boys (I would assume not really a focus, as easy to add as RoleTypeId.DBoy)
+        private static List<RoleTypeId> allPossibleChaos = new() { RoleTypeId.ChaosConscript, RoleTypeId.ChaosMarauder, RoleTypeId.ChaosRepressor, RoleTypeId.ChaosRifleman };
 
-        private static List<RoleType> allPossibleScps = new List<RoleType>()
+        private static List<RoleTypeId> allPossibleScps = new()
         {
-            RoleType.Scp173, RoleType.Scp106, RoleType.Scp049, RoleType.Scp079,
-            RoleType.Scp096, RoleType.Scp0492, RoleType.Scp93953, RoleType.Scp93989,
+            RoleTypeId.Scp173, RoleTypeId.Scp106, RoleTypeId.Scp049, RoleTypeId.Scp079,
+            RoleTypeId.Scp096, RoleTypeId.Scp0492, RoleTypeId.Scp939
         };
 
         /// <summary>
         /// Gets or sets roles and their targets types.
         /// </summary>
-        private Dictionary<RoleType, KillsPerType> killsAsRole;
+        private Dictionary<RoleTypeId, KillsPerType> killsAsRole;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KillCounterUtility"/> class.
@@ -45,7 +47,7 @@ namespace MvpUtility.EventHandling
         /// <param name="instance"> Plugin instance. </param>
         public KillCounterUtility(Main instance)
         {
-            killsAsRole = new Dictionary<RoleType, KillsPerType>();
+            killsAsRole = new Dictionary<RoleTypeId, KillsPerType>();
             MvpPlugin = instance;
         }
 
@@ -93,11 +95,11 @@ namespace MvpUtility.EventHandling
         /// For all the roles a player was, calculates which one was the best at killing.
         /// </summary>
         /// <returns> <see cref="Tuple{T1, T2}"/> of the best role, and their kill count. </returns>
-        public Tuple<RoleType, int> GetBestKillRole()
+        public Tuple<RoleTypeId, int> GetBestKillRole()
         {
-            RoleType bestRole = RoleType.None;
+            RoleTypeId bestRole = RoleTypeId.None;
             int bestKillsPerRoleCounter = int.MinValue;
-            foreach (KeyValuePair<RoleType, KillsPerType> pairedData in killsAsRole)
+            foreach (KeyValuePair<RoleTypeId, KillsPerType> pairedData in killsAsRole)
             {
                 if (bestKillsPerRoleCounter < pairedData.Value.TotalKilled)
                 {
@@ -114,25 +116,27 @@ namespace MvpUtility.EventHandling
         /// </summary>
         /// <param name="team"> Current team to check against. </param>
         /// <returns> Tuple of <see cref="Tuple{T1, T2}"/> contains role, and kill count. </returns>
-        public Tuple<RoleType, int> GetBestKillsPerTeam(Team team)
+        public Tuple<RoleTypeId, int> GetBestKillsPerTeam(Team team)
         {
-            List<RoleType> teamToParse;
+            List<RoleTypeId> teamToParse;
             switch (team)
             {
-                case Team.SCP:
+                case Team.SCPs:
                     teamToParse = allPossibleScps;
                     break;
-                case Team.MTF:
+                case Team.FoundationForces:
+                case Team.Scientists:
                     teamToParse = allPossibleNtf;
                     break;
-                case Team.CHI:
+                case Team.ChaosInsurgency:
+                case Team.ClassD:
                     teamToParse = allPossibleChaos;
                     break;
                 default:
-                    return Tuple.Create(RoleType.None, int.MinValue);
+                    return Tuple.Create(RoleTypeId.None, int.MinValue);
             }
 
-            RoleType currentBestRole = RoleType.None;
+            RoleTypeId currentBestRole = RoleTypeId.None;
             int bestKillsPerTeam = int.MinValue;
             for (int pos = 0; pos < teamToParse.Count; pos++)
             {
@@ -156,7 +160,7 @@ namespace MvpUtility.EventHandling
         /// </summary>
         /// <param name="playerRole"> Requested Role. </param>
         /// <returns> <see cref="int"/> Total kills for role. </returns>
-        public int GetKillsPerRole(RoleType playerRole)
+        public int GetKillsPerRole(RoleTypeId playerRole)
         {
             if (!killsAsRole.TryGetValue(playerRole, out KillsPerType killPerType))
             {
@@ -170,11 +174,11 @@ namespace MvpUtility.EventHandling
         /// For all the roles a player was, calculates which one was the worst at killing.
         /// </summary>
         /// <returns> <see cref="Tuple{T1, T2}"/> of the best role, and their kill count. </returns>
-        public Tuple<RoleType, int> CalculateWorstRole()
+        public Tuple<RoleTypeId, int> CalculateWorstRole()
         {
-            RoleType worstRole = RoleType.None;
+            RoleTypeId worstRole = RoleTypeId.None;
             int worstKillsPerRole = int.MaxValue;
-            foreach (KeyValuePair<RoleType, KillsPerType> pairedData in killsAsRole)
+            foreach (KeyValuePair<RoleTypeId, KillsPerType> pairedData in killsAsRole)
             {
                 if (worstKillsPerRole > pairedData.Value.TotalKilled)
                 {
@@ -190,12 +194,12 @@ namespace MvpUtility.EventHandling
         /// Iterates over every role a person was, and determines the best played one in terms of kills.
         /// </summary>
         /// <returns> <see cref="Tuple"/>. </returns>
-        public Tuple<RoleType, int> GetBestRole()
+        public Tuple<RoleTypeId, int> GetBestRole()
         {
-            Tuple<RoleType, int> currentBestRole = Tuple.Create(RoleType.None, int.MinValue);
-            foreach (KeyValuePair<RoleType, KillsPerType> pairedData in killsAsRole)
+            Tuple<RoleTypeId, int> currentBestRole = Tuple.Create(RoleTypeId.None, int.MinValue);
+            foreach (KeyValuePair<RoleTypeId, KillsPerType> pairedData in killsAsRole)
             {
-                Tuple<RoleType, int> currentBestRoleCalc = Tuple.Create(pairedData.Key, pairedData.Value.TotalKilled);
+                Tuple<RoleTypeId, int> currentBestRoleCalc = Tuple.Create(pairedData.Key, pairedData.Value.TotalKilled);
                 if (currentBestRoleCalc.Item2 > currentBestRole.Item2)
                 {
                     currentBestRole = currentBestRoleCalc;
@@ -209,15 +213,15 @@ namespace MvpUtility.EventHandling
         /// Iterates over every role a person was, and determines the best played one in terms of kills.
         /// </summary>
         /// <returns> <see cref="Tuple"/>. </returns>
-        public Tuple<RoleType, int> GetBestHumanToHuman()
+        public Tuple<RoleTypeId, int> GetBestHumanToHuman()
         {
-            Tuple<RoleType, int> currentBestRole = Tuple.Create(RoleType.None, int.MinValue);
+            Tuple<RoleTypeId, int> currentBestRole = Tuple.Create(RoleTypeId.None, int.MinValue);
             Log.Debug($"What is the human dict {killsAsRole.Count}", MvpPlugin.Config.EnableDebug);
-            foreach (KeyValuePair<RoleType, KillsPerType> pairedData in killsAsRole)
+            foreach (KeyValuePair<RoleTypeId, KillsPerType> pairedData in killsAsRole)
             {
                 if (!IsScp(pairedData.Key))
                 {
-                    Tuple<RoleType, int> currentBestRoleCalc = Tuple.Create(pairedData.Key, pairedData.Value.TotalKilled);
+                    Tuple<RoleTypeId, int> currentBestRoleCalc = Tuple.Create(pairedData.Key, pairedData.Value.TotalKilled);
                     if (currentBestRoleCalc.Item2 > currentBestRole.Item2)
                     {
                         currentBestRole = currentBestRoleCalc;
@@ -232,11 +236,11 @@ namespace MvpUtility.EventHandling
         /// Iterates over every role a person was, and determines the worst played one in terms of kills.
         /// </summary>
         /// <returns> <see cref="Tuple"/>. </returns>
-        public Tuple<RoleType, int> GetWorstRoleHuman()
+        public Tuple<RoleTypeId, int> GetWorstRoleHuman()
         {
-            Tuple<RoleType, int> currentWorstRole = Tuple.Create(RoleType.None, int.MaxValue);
+            Tuple<RoleTypeId, int> currentWorstRole = Tuple.Create(RoleTypeId.None, int.MaxValue);
 
-            foreach (KeyValuePair<RoleType, KillsPerType> pairedData in killsAsRole)
+            foreach (KeyValuePair<RoleTypeId, KillsPerType> pairedData in killsAsRole)
             {
                 if (!IsScp(pairedData.Key))
                 {
@@ -255,24 +259,23 @@ namespace MvpUtility.EventHandling
         /// Returns the total amount of entity kills by this player.
         /// </summary>
         /// <returns> <see cref="Tuple"/>.</returns>
-        internal Tuple<RoleType, int> GetBestKiller()
+        internal Tuple<RoleTypeId, int> GetBestKiller()
         {
-            return Tuple.Create(RoleType.None, TotalKills);
+            return Tuple.Create(RoleTypeId.None, TotalKills);
         }
 
         // Whether a player is an SCP or not by role.
-        private bool IsScp(RoleType currentRole)
+        private bool IsScp(RoleTypeId currentRole)
         {
             switch (currentRole)
             {
-                case RoleType.Scp049:
-                case RoleType.Scp0492:
-                case RoleType.Scp079:
-                case RoleType.Scp096:
-                case RoleType.Scp106:
-                case RoleType.Scp173:
-                case RoleType.Scp93953:
-                case RoleType.Scp93989:
+                case RoleTypeId.Scp049:
+                case RoleTypeId.Scp0492:
+                case RoleTypeId.Scp079:
+                case RoleTypeId.Scp096:
+                case RoleTypeId.Scp106:
+                case RoleTypeId.Scp173:
+                case RoleTypeId.Scp939:
                     return true;
                 default:
                     return false;

@@ -21,11 +21,11 @@ TODO:
 
 **[EXILED](https://github.com/Exiled-Team/EXILED) must be installed for this to work.**
 
-Current plugin version: V1.1.1
+Current plugin version: V2.0.0
 
 ## REQUIREMENTS
-* Exiled: V5.1.3
-* SCP:SL Server: V11.2
+* Exiled: V6
+* SCP:SL Server: V12
 
 
 Example configuration
