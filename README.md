@@ -26,6 +26,7 @@ Current plugin version: V2.0.0
 ## REQUIREMENTS
 * Exiled: V6
 * SCP:SL Server: V12
+=======
 
 
 Example configuration
