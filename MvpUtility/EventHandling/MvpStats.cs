@@ -120,12 +120,12 @@ namespace MvpUtility.EventHandling
             try
             {
                 // Pocket dimension teleport calling this?
-                if (ev.Target.Health > 0)
+                if (ev.Player.Health > 0)
                 {
                     return;
                 }
 
-                if (ev.Target.Role is Exiled.API.Features.Roles.Scp106Role)
+                if (ev.Player.Role is Exiled.API.Features.Roles.Scp106Role)
                 {
                     LastKnown106 = null;
                     Timing.KillCoroutines(scp106ValidatorCoroutine);
@@ -136,7 +136,7 @@ namespace MvpUtility.EventHandling
                     if (ev.DamageHandler.Type is Exiled.API.Enums.DamageType.PocketDimension && LastKnown106 != null)
                     {
                         listOfPlayersKillStats.TryAddKey(LastKnown106.Nickname, new KillCounterUtility(plugin));
-                        listOfPlayersKillStats[LastKnown106.Nickname].ParseKillerStats(LastKnown106, ev.Target);
+                        listOfPlayersKillStats[LastKnown106.Nickname].ParseKillerStats(LastKnown106, ev.Player);
                         return;
                     }
                 }
@@ -153,13 +153,13 @@ namespace MvpUtility.EventHandling
                 }
 
                 // Do not allow suicides (Add config)
-                if (ev.Player == ev.Target && !plugin.Config.TrackSuicides)
+                if (ev.Player == ev.Player && !plugin.Config.TrackSuicides)
                 {
                     return;
                 }
 
                 listOfPlayersKillStats.TryAddKey(ev.Player.Nickname, new KillCounterUtility(plugin));
-                listOfPlayersKillStats[ev.Player.Nickname].ParseKillerStats(ev.Player, ev.Target);
+                listOfPlayersKillStats[ev.Player.Nickname].ParseKillerStats(ev.Player, ev.Player);
             }
             catch (Exception ex)
             {
