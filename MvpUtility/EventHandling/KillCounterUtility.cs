@@ -83,11 +83,11 @@ namespace MvpUtility.EventHandling
             if (!killsAsRole.TryGetValue(killer.Role, out KillsPerType killPerType))
             {
                 killPerType = new KillsPerType();
-                Log.Debug("We are adding killer to role ", MvpPlugin.Config.EnableDebug);
+                Log.Debug("We are adding killer to role ");
                 killsAsRole.Add(killer.Role, killPerType);
             }
 
-            Log.Debug($"We are parsing type {killer.Role} and target was {target.Role}", MvpPlugin.Config.EnableDebug);
+            Log.Debug($"We are parsing type {killer.Role} and target was {target.Role}");
             killPerType.ParseTargetType(target);
         }
 
@@ -216,7 +216,7 @@ namespace MvpUtility.EventHandling
         public Tuple<RoleTypeId, int> GetBestHumanToHuman()
         {
             Tuple<RoleTypeId, int> currentBestRole = Tuple.Create(RoleTypeId.None, int.MinValue);
-            Log.Debug($"What is the human dict {killsAsRole.Count}", MvpPlugin.Config.EnableDebug);
+            Log.Debug($"What is the human dict {killsAsRole.Count}");
             foreach (KeyValuePair<RoleTypeId, KillsPerType> pairedData in killsAsRole)
             {
                 if (!IsScp(pairedData.Key))
@@ -251,7 +251,7 @@ namespace MvpUtility.EventHandling
                 }
             }
 
-            Log.Debug($"What was our current worst role {currentWorstRole.Item1} and {currentWorstRole.Item2}", MvpPlugin.Config.EnableDebug);
+            Log.Debug($"What was our current worst role {currentWorstRole.Item1} and {currentWorstRole.Item2}");
             return currentWorstRole;
         }
 

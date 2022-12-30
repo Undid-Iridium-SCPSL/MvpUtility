@@ -163,7 +163,7 @@ namespace MvpUtility.EventHandling
             }
             catch (Exception ex)
             {
-                Log.Debug($" It seems we failed on OnDying, here's why {ex}", plugin.Config.EnableDebug);
+                Log.Debug($" It seems we failed on OnDying, here's why {ex}");
             }
 
             // Either just do this directly or give a queue this data for a thread, so we can offload logic to threads
@@ -211,7 +211,7 @@ namespace MvpUtility.EventHandling
             }
             catch (Exception unableToClearFields)
             {
-                Log.Debug($"Unable to clear fields for MvpStats {unableToClearFields}", plugin.Config.EnableDebug);
+                Log.Debug($"Unable to clear fields for MvpStats {unableToClearFields}");
             }
         }
 
