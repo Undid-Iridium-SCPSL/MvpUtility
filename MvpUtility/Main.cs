@@ -36,7 +36,7 @@ namespace MvpUtility
         public override Version RequiredExiledVersion { get; } = new Version(6, 0, 0);
 
         /// <inheritdoc />
-        public override Version Version { get; } = new Version(2, 0, 0);
+        public override Version Version { get; } = new Version(2, 0, 1);
 
         /// <summary>
         /// Gets an instance of the <see cref="MvpStats"/> class.
