@@ -19,6 +19,8 @@ namespace MvpUtility
         /// <inheritdoc />
         public bool IsEnabled { get; set; } = true;
 
+        public bool Debug { get; set; } = false;
+
         /// <summary>
         /// Gets or sets a value indicating whether control over to enable or disable debug information.
         /// </summary>
